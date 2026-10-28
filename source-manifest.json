@@ -1,0 +1,335 @@
+{
+    "schemaVersion":  1,
+    "purpose":  "Reviewed source preview; not a production binary release",
+    "generatedAtUtc":  "2026-10-28T07:41:54.9528020+00:00",
+    "files":  [
+                  {
+                      "path":  ".gitignore",
+                      "sha256":  "1cb3f7d29ef4475e28cccdf4a062e8a476a9caa529f089bbe1ba0366982ab4cd"
+                  },
+                  {
+                      "path":  "app.manifest",
+                      "sha256":  "6f1dc6824d4c4b15bb3323e808fb3178d8834370a70ccdf7245d7e6efdf06d0b"
+                  },
+                  {
+                      "path":  "App.xaml",
+                      "sha256":  "e064163f3a6bc1b00ea0815454b2bd3cf98b02fea0dccb5e310a6c10a05f9d0f"
+                  },
+                  {
+                      "path":  "App.xaml.cs",
+                      "sha256":  "6fff4edc15681d9e6ba797efc797eedbd4a64ca8c1a6b747be66080acbf8cc75"
+                  },
+                  {
+                      "path":  "AssemblyInfo.cs",
+                      "sha256":  "3fac2af92385f676e9a941befd23fe38f0a5fa6167d4a3a88f07e730c5595ca3"
+                  },
+                  {
+                      "path":  "build.ps1",
+                      "sha256":  "8de91d6506f4b609e35da14701cd72322333582fce42fac15602a117bbfcdb25"
+                  },
+                  {
+                      "path":  "CodexRateLimitClient.cs",
+                      "sha256":  "59b25c1aa9f44aa36b7fcc2c86e2617b1a9677eccb3b6af99f10574320bae7f4"
+                  },
+                  {
+                      "path":  "CodexExecutableResolver.cs",
+                      "sha256":  "af4b5f1fb34a96d4e6846dcf47fd354d3cbfea34af4fd7fef39bddddee4438c1"
+                  },
+                  {
+                      "path":  "CodexConnectionSettings.cs",
+                      "sha256":  "ed4e9460b631910e97723cda6e4b0f69f9e7191bbdf33353cf111a173b4dcd3a"
+                  },
+                  {
+                      "path":  "CodexUsageWidget.csproj",
+                      "sha256":  "9d7cad8a51fac7e9b3af79006ff91656c93f97a22e21c87567c8947abe4706c8"
+                  },
+                  {
+                      "path":  "Directory.Build.props",
+                      "sha256":  "c459ae487f27aedb8255ae79d4e9060f3bc20a6d14fb3a74c3dedfd8ef5ed5c9"
+                  },
+                  {
+                      "path":  "FiveHourCountdownPolicy.cs",
+                      "sha256":  "6e497f0362991c33dd6e215e5b28a716a50deeec8cd67f891cc549102c1ce4e8"
+                  },
+                  {
+                      "path":  "FlipNumber.xaml",
+                      "sha256":  "1ee48cc192205fbc007d8e81de40709eeba19b29f5968749aa5989b1ff55edeb"
+                  },
+                  {
+                      "path":  "FlipNumber.xaml.cs",
+                      "sha256":  "8149ae13e55c882a2c5a592b8c14ce01995875fcd9ae3184783469ec115dd7b0"
+                  },
+                  {
+                      "path":  "MainWindow.xaml",
+                      "sha256":  "a64884e4c5ef3837fe41128e827e00a2bc88629eff060c038a19d29d98007774"
+                  },
+                  {
+                      "path":  "MainWindow.xaml.cs",
+                      "sha256":  "3158e15a4c54b258d0903df82a7a81be6652f286f9a8c9f91327030adedda3a5"
+                  },
+                  {
+                      "path":  "Models.cs",
+                      "sha256":  "dfdc2ed4ac1173232959cfad8c98bf42f5f67e20b3cc677f9628c87a3874aa14"
+                  },
+                  {
+                      "path":  "restart-widget.ps1",
+                      "sha256":  "8ab220484d64edb73a54ca2f695c898c15b7e9b118376fac456cb3becf8cc280"
+                  },
+                  {
+                      "path":  "start-widget.cmd",
+                      "sha256":  "bdd1811ad600bc473681011b2d6bbfe6e26796cdb7d64561cbae662fb12e1e15"
+                  },
+                  {
+                      "path":  "start-widget.ps1",
+                      "sha256":  "989926b35a4af1880c3b7d98c54522f73eeeea5b7bf6000af99bc55d2378db03"
+                  },
+                  {
+                      "path":  "StartupManager.cs",
+                      "sha256":  "b463bde99836b23c3925c64e76f3c33fcd3f0f6678113bef7427f34892b68888"
+                  },
+                  {
+                      "path":  "TiboChineseBriefClient.cs",
+                      "sha256":  "cbdf83a1c4303fde713720bdbb3db47550660898c77c417485d1eadcb472ed33"
+                  },
+                  {
+                      "path":  "TiboPollingPolicy.cs",
+                      "sha256":  "1ee6d0b1e3aed3a3ba20d0d9aa78d2ff0c36d0af7ced1ca589673b9d689e50cc"
+                  },
+                  {
+                      "path":  "TiboResetMonitor.cs",
+                      "sha256":  "28f85b615a56fc8fccb7a862048315d8b9a885d0a02aa6e6336ae715317feb3f"
+                  },
+                  {
+                      "path":  "TiboStatusCoordinator.cs",
+                      "sha256":  "742c6379845803b7c89119b7cf93a15de4b25ed6f3da710fb1136e5efe1a49ee"
+                  },
+                  {
+                      "path":  "UsageAgent.cs",
+                      "sha256":  "4c6f5a873ab616e2574517719cc44b23df57d2720bbd570570617051954efe18"
+                  },
+                  {
+                      "path":  "UsageHintPolicy.cs",
+                      "sha256":  "e4cffd1b858ebf2a4371fa71edfc75059cec4e2af4c3fcc4cf95813c7724d2a7"
+                  },
+                  {
+                      "path":  "UsageWindowSelector.cs",
+                      "sha256":  "77682131fd05cff3c27e8db65531266dc308d0a45cf09d16bf9c225b612eff62"
+                  },
+                  {
+                      "path":  "verify-widget.ps1",
+                      "sha256":  "2a4cc40159b8a60ca3c74caa6823634ca3bc86b225e5f67e300dc246b1fadba3"
+                  },
+                  {
+                      "path":  "WidgetLayoutPolicy.cs",
+                      "sha256":  "83ec0a0d04f1f5f1f689aa6d02ecfcbca9c99baab491f0af9e046a292f18f77c"
+                  },
+                  {
+                      "path":  "WidgetRuntimeStatus.cs",
+                      "sha256":  "342cf2b536f868a48da03856ecee7ccfe05bee86a34f6f6b4925594a8c7cac69"
+                  },
+                  {
+                      "path":  "WidgetUpdateService.cs",
+                      "sha256":  "4b8fe7bf17594d19eedc136eb435739ee97761aff6bd0480f93b3b5740e8f4e1"
+                  },
+                  {
+                      "path":  "WidgetUpdateSettings.cs",
+                      "sha256":  "19cd044cf6edefce94fdd6a873de2eb820d1646737f46dadacd40822e307cf42"
+                  },
+                  {
+                      "path":  "WidgetUpdateInstaller.cs",
+                      "sha256":  "85d5b0e6d69ed1c2126089c0b47d4ace8f6249932787379030b5c3d43fb5f8c5"
+                  },
+                  {
+                      "path":  "UiText.cs",
+                      "sha256":  "ad46c69562d4aebaeeb78a078e47ed5badfba62be4fde87eb8f78d4ee492e089"
+                  },
+                  {
+                      "path":  "README.github.md",
+                      "sha256":  "1549a49462aa8ac526470574f13a18d042161e39870e8f26e2a08e9ea2f280cc"
+                  },
+                  {
+                      "path":  "Assets/mali-yaya.png",
+                      "sha256":  "2800b23ec6f6dea9a94f9d5351637639c0eb3eccb55f3a90855e6f1b36ba9eec"
+                  },
+                  {
+                      "path":  "Assets/mali-yaya.ico",
+                      "sha256":  "4c03ec2a9d49defebe73a322ec837d1a3c22780a6857d28c4e3a223a989fc999"
+                  },
+                  {
+                      "path":  "RIGHTS.md",
+                      "sha256":  "b969583c94b0dce5a55f840c9dcae8092aa92aaa8b4cb11564fe9ec7c7409147"
+                  },
+                  {
+                      "path":  "PRIVACY.md",
+                      "sha256":  "98666c7a0400b406a70d3dca386f2217d23fe586e63182a07a8aff80c1fb790a"
+                  },
+                  {
+                      "path":  "SECURITY.md",
+                      "sha256":  "8f0d01e50357779fbbd289fda0b395323a0b95e4d049146ac1111c8b0b15e6d1"
+                  },
+                  {
+                      "path":  "THIRD_PARTY.md",
+                      "sha256":  "dea5cd03e183f1a1d23d13e4cff92dacfec428a2f8191a415f5379cd44e1f195"
+                  },
+                  {
+                      "path":  "README.en.md",
+                      "sha256":  "480fec60263742b8be5a6e99f2d1f7ebe000a49b122163a331ffeb624f704db6"
+                  },
+                  {
+                      "path":  "launcher/WidgetLauncher.cs",
+                      "sha256":  "f47b7bd8a5a81a63f1a3839f566204806fabfad0d6005f4bead35e1ecc83db57"
+                  },
+                  {
+                      "path":  "launcher/RestartWidget.cs",
+                      "sha256":  "3c43979d051104a78293c61d6985cebdc182a44daea440edccc5acecc202cd6a"
+                  },
+                  {
+                      "path":  "launcher/InstallDesktopEntry.cs",
+                      "sha256":  "d9b145ef5c4627c6b3b4aa1f79e5a06b6daba72b6915f7eb823770ebfac031be"
+                  },
+                  {
+                      "path":  "scripts/SourcePolicy.ps1",
+                      "sha256":  "86bae02a94e4043bd03fbc590104f261605f78a62f1c2bbc25fe2d80de553b59"
+                  },
+                  {
+                      "path":  "scripts/Prepare-Source.ps1",
+                      "sha256":  "61da010af30ced242e42cd0b04c00d22afa719343e73cceac04b8e3062bc763d"
+                  },
+                  {
+                      "path":  "scripts/Verify-Source.ps1",
+                      "sha256":  "90af1fb7e1afed7976e1322860368c637dca38f2ed35532e73ecfe1239d355db"
+                  },
+                  {
+                      "path":  "scripts/Test-SourcePackaging.ps1",
+                      "sha256":  "2711c9fec2190010e38eb1e56f74f7de63dae23b793a5f1d127dfc50e0651e08"
+                  },
+                  {
+                      "path":  "scripts/Test-Launcher.ps1",
+                      "sha256":  "05b8e94e5a7e324a8b9727fe6f3b95d6b242c14cafc1e3e67da7264747b26d1e"
+                  },
+                  {
+                      "path":  "scripts/Test-Diagnostics.ps1",
+                      "sha256":  "e747e00bc5aaa614d727cfcc3c5db881d067163ea879b5264c2fca6f6b2c8aa2"
+                  },
+                  {
+                      "path":  "scripts/Prepare-Release.ps1",
+                      "sha256":  "a7591f99052da309423a60f333616117cb1e43bdfc5d51dbffede2bb6d0df869"
+                  },
+                  {
+                      "path":  "scripts/Test-ReleasePackage.ps1",
+                      "sha256":  "a4fde15349e5b6a00cf77ced3d51e9d610c1dfff09377be6c83421281f95ebe9"
+                  },
+                  {
+                      "path":  "scripts/Build-Icon.ps1",
+                      "sha256":  "d2934e20a10c74ff9b79eab1aadbb082c64f4d941e9b76349aa2d788d0a125a2"
+                  },
+                  {
+                      "path":  "scripts/Test-Icon.ps1",
+                      "sha256":  "0d21a6b7637b4d983a2fc807a5840e9d9681f151bccbe69e1ddb6751c5301a15"
+                  },
+                  {
+                      "path":  "docs/PUBLISHING.md",
+                      "sha256":  "6df182fe4d62140f38cb7a1829409430859f01056a14f0fda6d98803bb629e3b"
+                  },
+                  {
+                      "path":  "docs/AUTO-DISCOVERY.md",
+                      "sha256":  "70f57d7414255f5d7fe635a1ece8bfb092433cbd14c7b8fc08d1c22f692fb7cc"
+                  },
+                  {
+                      "path":  "docs/AUTO-UPDATE.md",
+                      "sha256":  "7e1e05727350269a7ed2d6c58dd80b3602176af591d12e8a3d757a6519e2d628"
+                  },
+                  {
+                      "path":  "docs/MASCOT-DESIGN.md",
+                      "sha256":  "af2c47bcb42dba23493b6f047704ea8203b735c435ca2ef5cb1feb0be6950548"
+                  },
+                  {
+                      "path":  "docs/ICON-DESIGN.md",
+                      "sha256":  "6d5e429a14d2dedcbcb8a89454b243fd35f94e0cb7b58c57ce732cb642a86f47"
+                  },
+                  {
+                      "path":  ".github/workflows/verify.yml",
+                      "sha256":  "9fa8cb1895e2db46efd9ef93ac50edddaf237a9c9ff8b27d7f9cffa6a7cb2eba"
+                  },
+                  {
+                      "path":  "README.md",
+                      "sha256":  "1549a49462aa8ac526470574f13a18d042161e39870e8f26e2a08e9ea2f280cc"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/CodexClientRecoveryTests.cs",
+                      "sha256":  "dcb86982d299137aae41898d33e1d8003e3eacd74e537dcd58f67c7dc349baa6"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/CodexDiscoveryTests.cs",
+                      "sha256":  "0cb4340e4bb7c26d6847452a7da478aafa3ba7c7abd3bfe44ef0cc6a149a2d73"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/CodexUsageWidget.Tests.csproj",
+                      "sha256":  "e4632254a911c42029c31fe5ad5f369672b5db8a4e7824dd0cb7221d25fc49de"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/CountdownContinuityTests.cs",
+                      "sha256":  "620f1f3e9d7cbb6811fa1cb032f85472322a3f257c751ff1b276fdced51bd638"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/FiveHourCountdownPolicyTests.cs",
+                      "sha256":  "168f9a03bae0aec7b0f6e64626a343fdacaf0bc092cef7447fdbd457ee45ce2c"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/FlipNumberTests.cs",
+                      "sha256":  "5de7d8ef217e2d0eb8a5ea76d5e63aee6c49fd2c0489a2550736c937f5042276"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/IconResourceTests.cs",
+                      "sha256":  "e87567ca5134751c4fca63b813ba798fae053c1a9f74376650749b06823317ba"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/LocalizationTests.cs",
+                      "sha256":  "88b2e1cbd761a519597759b2713278a8c47ba7bdad796d5110c64cb64a039e1e"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/OriginalMascotTests.cs",
+                      "sha256":  "35a5c5d2fc779271bbb3ff71b428b49b43187247d66e76a3916c29b6fd8880c3"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/TiboChineseBriefClientTests.cs",
+                      "sha256":  "f463aaf59869b1b5b510c890986029d03cf1838fb4c04620d4559209365e26ca"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/TiboPollingPolicyTests.cs",
+                      "sha256":  "ddf67d4754e6a19ae71f32211750c9d9f880ac2e647b9ce9190876d1ee38ba68"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/TiboResetMonitorTests.cs",
+                      "sha256":  "e95bd40f0d63fc52ffc93f6c33dd4e7d6331215b53756f49b741b5035742a1cc"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/TiboStatusCoordinatorTests.cs",
+                      "sha256":  "57d616d31733a747cd732e91ee8699ac0f99e8e04c58d4ef346522d7f8a33330"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/UsageAgentTests.cs",
+                      "sha256":  "b8ad2b0821d9cde82fd4b1c5fc7ace9afbcf75a9d2593d7b907a9491d523d74c"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/WidgetPresentationTests.cs",
+                      "sha256":  "5dabb0afd2df06323397e822d4f8bc287c285731cfa6e5202085367c384ad12a"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/WidgetRuntimeStatusTests.cs",
+                      "sha256":  "37931a98227b91c44d4198a472409a93ddcb56adb0e7bd3a73a0dfea86ee1722"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/WidgetUpdateInstallerTests.cs",
+                      "sha256":  "0b77b0264cdae401c57304d0174b03d60cdc580d3cfb9586a97973c21fddf71d"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/WidgetUpdateTests.cs",
+                      "sha256":  "2676d1519fe166a0c4fa5cb1581fa0dcab5355b92182a746e9ba3341ae6a488c"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/WpfPresentationCollection.cs",
+                      "sha256":  "6379d0c7fa3ec7b2ff69596bb5ccef9513bae2d05c021346677c52ce9f760ba7"
+                  }
+              ]
+}

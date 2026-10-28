@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\mali-yaya.ico</ApplicationIcon>
+    <Product>Mali Yaya / 码力芽芽</Product>
+    <Title>Mali Yaya / 码力芽芽</Title>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\mali-yaya.ico" />
+    <Compile Remove="tests\**\*.cs" />
+    <Compile Remove="launcher\**\*.cs" />
+  </ItemGroup>
+</Project>

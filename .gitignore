@@ -1,0 +1,35 @@
+# Generated output and local deployments
+**/bin/
+**/obj/
+publish*/
+artifacts/
+.codegraph/
+.vs/
+TestResults/
+*.exe
+*.dll
+*.pdb
+*.zip
+*.png
+!Assets/mali-yaya.png
+
+# Account/runtime state, logs, credentials and personal configuration
+*.log
+*.local.*
+widget-runtime.json*
+widget-update-recovery.json*
+.widget-update.lock
+*.incoming-*
+tibo-chinese-cache.json*
+connection-settings.json*
+upgrade-manifest.json
+auth.json
+config.toml
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+.codex/
+README.local.md
