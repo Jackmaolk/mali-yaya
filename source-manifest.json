@@ -1,11 +1,11 @@
 {
     "schemaVersion":  1,
     "purpose":  "Reviewed source preview; not a production binary release",
-    "generatedAtUtc":  "2026-10-28T07:49:09.6009501+00:00",
+    "generatedAtUtc":  "2026-10-28T07:55:11.0633836+00:00",
     "files":  [
                   {
                       "path":  ".gitignore",
-                      "sha256":  "1cb3f7d29ef4475e28cccdf4a062e8a476a9caa529f089bbe1ba0366982ab4cd"
+                      "sha256":  "1678462c84ee9a0b6b2ba54f61200f1c183b9c393a9d494a20b5868d8fa4a595"
                   },
                   {
                       "path":  ".gitattributes",
@@ -149,7 +149,7 @@
                   },
                   {
                       "path":  "README.github.md",
-                      "sha256":  "1549a49462aa8ac526470574f13a18d042161e39870e8f26e2a08e9ea2f280cc"
+                      "sha256":  "b8e1da77e8dfdc80ffec7ad7848875494d1bc249f8f953087aa99c0bd40e2195"
                   },
                   {
                       "path":  "Assets/mali-yaya.png",
@@ -160,8 +160,12 @@
                       "sha256":  "4c03ec2a9d49defebe73a322ec837d1a3c22780a6857d28c4e3a223a989fc999"
                   },
                   {
+                      "path":  "docs/images/widget-reset-complete-zh.png",
+                      "sha256":  "633e6e6a4ae56f337c874f14812e4293b7f250b34bd417db231869f5599991b4"
+                  },
+                  {
                       "path":  "RIGHTS.md",
-                      "sha256":  "b969583c94b0dce5a55f840c9dcae8092aa92aaa8b4cb11564fe9ec7c7409147"
+                      "sha256":  "eb0dda0ebf643cdacfb6668e8a1223c83fa845c9495cc2fc8aadd34d461bad7c"
                   },
                   {
                       "path":  "PRIVACY.md",
@@ -177,7 +181,7 @@
                   },
                   {
                       "path":  "README.en.md",
-                      "sha256":  "480fec60263742b8be5a6e99f2d1f7ebe000a49b122163a331ffeb624f704db6"
+                      "sha256":  "8d6dc94f107f6cd3c048071ff7ca2ad2c54a40d2cc7b19c8af274f5f390c0022"
                   },
                   {
                       "path":  "launcher/WidgetLauncher.cs",
@@ -193,7 +197,7 @@
                   },
                   {
                       "path":  "scripts/SourcePolicy.ps1",
-                      "sha256":  "250056ec66fed37bf80d8e3ad324d6559866d04ead2aca08678788b1fde4e57e"
+                      "sha256":  "b7753ac1940d4dfbce25b41a3be204b909e47d971ff76f82671515d07c730327"
                   },
                   {
                       "path":  "scripts/Prepare-Source.ps1",
@@ -205,7 +209,7 @@
                   },
                   {
                       "path":  "scripts/Test-SourcePackaging.ps1",
-                      "sha256":  "2711c9fec2190010e38eb1e56f74f7de63dae23b793a5f1d127dfc50e0651e08"
+                      "sha256":  "dab01cdb861eacb33d2b712de9c6b1913e3925b7406bc4476cd2b02d60c80126"
                   },
                   {
                       "path":  "scripts/Test-Launcher.ps1",
@@ -233,7 +237,7 @@
                   },
                   {
                       "path":  "docs/PUBLISHING.md",
-                      "sha256":  "f54a83064a4ebc3c5c1ae4c4c095ad8507f81c909d907398299d31476999db01"
+                      "sha256":  "c0c2a1b1919ab745a96758e737a31df1a9a1ddff743cba70da8fe81e4233a15f"
                   },
                   {
                       "path":  "docs/AUTO-DISCOVERY.md",
@@ -257,7 +261,7 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "1549a49462aa8ac526470574f13a18d042161e39870e8f26e2a08e9ea2f280cc"
+                      "sha256":  "b8e1da77e8dfdc80ffec7ad7848875494d1bc249f8f953087aa99c0bd40e2195"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/CodexClientRecoveryTests.cs",

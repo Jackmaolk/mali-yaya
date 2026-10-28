@@ -13,6 +13,7 @@ function Get-WidgetSourceEntries([string]$Root) {
         'UsageHintPolicy.cs', 'UsageWindowSelector.cs', 'verify-widget.ps1',
         'WidgetLayoutPolicy.cs', 'WidgetRuntimeStatus.cs', 'WidgetUpdateService.cs', 'WidgetUpdateSettings.cs', 'WidgetUpdateInstaller.cs', 'UiText.cs', 'README.github.md',
         'Assets/mali-yaya.png', 'Assets/mali-yaya.ico',
+        'docs/images/widget-reset-complete-zh.png',
         'RIGHTS.md', 'PRIVACY.md', 'SECURITY.md', 'THIRD_PARTY.md', 'README.en.md',
         'launcher/WidgetLauncher.cs', 'launcher/RestartWidget.cs', 'launcher/InstallDesktopEntry.cs',
         'scripts/SourcePolicy.ps1', 'scripts/Prepare-Source.ps1',
@@ -40,10 +41,11 @@ function Get-WidgetSourceEntries([string]$Root) {
 }
 
 function Assert-WidgetSourceText([string]$Path, [string]$Label) {
-    # Only these reviewed artwork binaries may bypass text scanning, with pinned hashes.
+    # Only reviewed artwork and this consented screenshot bypass text scanning, with pinned hashes.
     $artwork = @{
         'Assets/mali-yaya.png' = '2800b23ec6f6dea9a94f9d5351637639c0eb3eccb55f3a90855e6f1b36ba9eec'
         'Assets/mali-yaya.ico' = '4c03ec2a9d49defebe73a322ec837d1a3c22780a6857d28c4e3a223a989fc999'
+        'docs/images/widget-reset-complete-zh.png' = '633e6e6a4ae56f337c874f14812e4293b7f250b34bd417db231869f5599991b4'
     }
     if ($artwork.ContainsKey($Label)) {
         if ((Get-Item -LiteralPath $Path).Length -gt 2MB -or

@@ -4,6 +4,18 @@
 
 A compact Windows WPF companion focused on Tibo reset announcements, Beijing-time reset windows, account-confirmed recovery reminders, and quota countdowns. Version 2026.10.28.3 is an unofficial source preview, not an OpenAI product or a signed production installer. Repository: [Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya). Publicly visible source does not imply a license to redistribute or commercialize it; see [rights](RIGHTS.md).
 
+## Running Screenshot
+
+<img src="docs/images/widget-reset-complete-zh.png" alt="Mali Yaya running in Chinese: original robot, stacked flip countdown, account quotas and a confirmed reset celebration" width="463" />
+
+A user-supplied screenshot of the running widget, not a mockup. It shows the original Yaya character, stacked countdown, five-hour/weekly account data, reset opportunities and Tibo's original text with a Chinese brief. The Chinese interface is pictured; the UI also follows an English Windows display language.
+
+Values, plan, posts, opportunities and times reflect that capture only, not installation defaults, a currently valid announcement or benefits promised to another account. The completion message uses account evidence, not the quoted post alone. Older third-party character artwork is not included as current product imagery.
+
+[Full-size image](docs/images/widget-reset-complete-zh.png) · [Feedback / report a problem](https://github.com/Jackmaolk/mali-yaya/issues/new)
+
+Include your app/Windows version, display scaling, reproduction steps and expected result. Redact emails, names, private conversations, paths and credentials before sharing images. Do not attach auth.json, tokens, complete runtime logs or private account-state files.
+
 ## Network Comes First
 
 The widget needs working access to Codex and the public activity/translation services. If your network cannot reach them directly, first connect your own proxy tool to a working node and configure it as appropriate. Directly reachable networks need no additional proxy. This software supplies no proxy subscription or nodes.

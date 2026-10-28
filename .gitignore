@@ -12,6 +12,7 @@ TestResults/
 *.zip
 *.png
 !Assets/mali-yaya.png
+!docs/images/widget-reset-complete-zh.png
 
 # Account/runtime state, logs, credentials and personal configuration
 *.log

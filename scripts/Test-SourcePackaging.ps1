@@ -46,4 +46,15 @@ try {
     }
 }
 finally { $zip.Dispose() }
-Write-Host 'PASS: 6 packaging checks (clean export, runtime exclusion, tamper, token, personal path, archive inventory).'
+
+$screenshotTamper = Join-Path $testRoot 'screenshot-tamper'
+Copy-Item -LiteralPath $baseline -Destination $screenshotTamper -Recurse
+[IO.File]::AppendAllText((Join-Path $screenshotTamper 'docs/images/widget-reset-complete-zh.png'), 'tampered')
+Assert-Rejected $screenshotTamper 'Artwork fingerprint mismatch'
+
+$unknownScreenshot = Join-Path $testRoot 'unknown-screenshot'
+Copy-Item -LiteralPath $baseline -Destination $unknownScreenshot -Recurse
+Copy-Item -LiteralPath (Join-Path $unknownScreenshot 'docs/images/widget-reset-complete-zh.png') -Destination (Join-Path $unknownScreenshot 'docs/images/unreviewed.png')
+Assert-Rejected $unknownScreenshot 'Unexpected file'
+
+Write-Host 'PASS: 8 packaging checks (clean export, runtime exclusion, tamper, token, personal path, archive inventory, screenshot fingerprint, unreviewed image rejection).'

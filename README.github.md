@@ -6,6 +6,18 @@
 
 非 OpenAI 官方产品，无隶属、赞助或背书关系。当前版本为 **2026.10.28.3 源码预览版**，不是已完成商用签名、安装和真实自动升级验收的正式安装包。项目仓库：[Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya)。没有正式 Release 时，不表示已经提供可供普通用户下载的安装程序。源码可见不等于已授予开源或商用许可，见 [权利说明](RIGHTS.md)。
 
+## 运行截图
+
+<img src="docs/images/widget-reset-complete-zh.png" alt="码力芽芽实际运行：原创芽芽角色、上下翻页倒计时、五小时与每周额度，以及本账户重置完成提醒" width="463" />
+
+用户提供的新版实机截图，非设计稿。左侧为芽芽与上下结构翻页倒计时；右侧显示账户额度、随机重置机会；下方为 Tibo 原文、中文概要与本账户重置完成提醒。
+
+**截图仅代表拍摄时的账户状态。** 百分比、重置机会、套餐、帖子及时间不是新安装默认值、当前有效预告或对其他用户的权益承诺。图中“本账户重置已完成”基于账户数据，不是仅凭英文帖文宣告到账。新版本使用原创芽芽，不使用旧角色形象。
+
+[查看原图](docs/images/widget-reset-complete-zh.png) · [反馈建议或报告问题](https://github.com/Jackmaolk/mali-yaya/issues/new)
+
+反馈时请说明软件版本、Windows 版本、屏幕缩放比例、复现步骤及期望效果。截图只保留必要区域，先遮住邮箱、用户名、私密对话、路径或凭据；不要上传 auth.json、Token、完整运行日志或个人账户状态文件。
+
 ## 先看这三点
 
 - **网络是前提**：需要能正常访问 Codex、X 相关公开动态接口和机译服务的网络。在无法直连这些服务的环境中，通常要先开启自己的代理工具，也就是常说的“魔法”。软件不附送代理、节点或订阅。
@@ -179,7 +191,7 @@ dotnet publish CodexUsageWidget.csproj -c Release --self-contained false -p:UseA
 powershell.exe -NoProfile -File scripts/Test-Diagnostics.ps1 -PublishPath bin/review-build
 ~~~
 
-测试使用隔离夹具，不代表真实账户或真实 GitHub Release 已端到端通过。build.ps1 是个人布局构建脚本，不是通用安装器；默认不写桌面，只有明确传入 -InstallDesktop 才调用桌面入口安装器。源码导出使用 scripts/Prepare-Source.ps1，白名单排除运行状态、凭据、旧素材、运行二进制和个人 README，仅允许两份哈希固定的原创图标资产。
+测试使用隔离夹具，不代表真实账户或真实 GitHub Release 已端到端通过。build.ps1 是个人布局构建脚本，不是通用安装器；默认不写桌面，只有明确传入 -InstallDesktop 才调用桌面入口安装器。源码导出使用 scripts/Prepare-Source.ps1，白名单排除运行状态、凭据、旧素材、运行二进制和个人 README。图片只允许两份哈希固定的原创图标，以及所有者明确授权、单独审核并固定哈希的一张运行截图；其他截图仍排除。
 
 ## 6. 安全与隐私
 
