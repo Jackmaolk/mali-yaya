@@ -1,11 +1,15 @@
 {
     "schemaVersion":  1,
     "purpose":  "Reviewed source preview; not a production binary release",
-    "generatedAtUtc":  "2026-10-28T07:41:54.9528020+00:00",
+    "generatedAtUtc":  "2026-10-28T07:49:09.6009501+00:00",
     "files":  [
                   {
                       "path":  ".gitignore",
                       "sha256":  "1cb3f7d29ef4475e28cccdf4a062e8a476a9caa529f089bbe1ba0366982ab4cd"
+                  },
+                  {
+                      "path":  ".gitattributes",
+                      "sha256":  "ade346ef37334d5dc9ed99826ed02598305a603c70d6c833f7abfa2a9ab427a2"
                   },
                   {
                       "path":  "app.manifest",
@@ -189,7 +193,7 @@
                   },
                   {
                       "path":  "scripts/SourcePolicy.ps1",
-                      "sha256":  "86bae02a94e4043bd03fbc590104f261605f78a62f1c2bbc25fe2d80de553b59"
+                      "sha256":  "250056ec66fed37bf80d8e3ad324d6559866d04ead2aca08678788b1fde4e57e"
                   },
                   {
                       "path":  "scripts/Prepare-Source.ps1",
@@ -229,7 +233,7 @@
                   },
                   {
                       "path":  "docs/PUBLISHING.md",
-                      "sha256":  "6df182fe4d62140f38cb7a1829409430859f01056a14f0fda6d98803bb629e3b"
+                      "sha256":  "f54a83064a4ebc3c5c1ae4c4c095ad8507f81c909d907398299d31476999db01"
                   },
                   {
                       "path":  "docs/AUTO-DISCOVERY.md",
@@ -237,7 +241,7 @@
                   },
                   {
                       "path":  "docs/AUTO-UPDATE.md",
-                      "sha256":  "7e1e05727350269a7ed2d6c58dd80b3602176af591d12e8a3d757a6519e2d628"
+                      "sha256":  "6ca5eab9063974eede06c57febf01edadef01a8bca105b2f47f3565207db6335"
                   },
                   {
                       "path":  "docs/MASCOT-DESIGN.md",

@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 
 function Get-WidgetSourceEntries([string]$Root) {
     $fixed = @(
-        '.gitignore', 'app.manifest', 'App.xaml', 'App.xaml.cs', 'AssemblyInfo.cs',
+        '.gitignore', '.gitattributes', 'app.manifest', 'App.xaml', 'App.xaml.cs', 'AssemblyInfo.cs',
         'build.ps1', 'CodexRateLimitClient.cs', 'CodexExecutableResolver.cs', 'CodexConnectionSettings.cs',
         'CodexUsageWidget.csproj', 'Directory.Build.props',
         'FiveHourCountdownPolicy.cs', 'FlipNumber.xaml', 'FlipNumber.xaml.cs',

@@ -1,0 +1,4 @@
+# Source snapshots carry byte-level hashes; preserve their exact line endings.
+* -text
+*.png binary
+*.ico binary
