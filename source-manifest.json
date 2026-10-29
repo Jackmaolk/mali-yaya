@@ -1,7 +1,7 @@
 {
     "schemaVersion":  1,
     "purpose":  "Reviewed source preview; not a production binary release",
-    "generatedAtUtc":  "2026-10-29T05:13:22.9915336+00:00",
+    "generatedAtUtc":  "2026-10-29T12:58:32.5332164+00:00",
     "files":  [
                   {
                       "path":  ".gitignore",
@@ -33,7 +33,7 @@
                   },
                   {
                       "path":  "CodexRateLimitClient.cs",
-                      "sha256":  "59b25c1aa9f44aa36b7fcc2c86e2617b1a9677eccb3b6af99f10574320bae7f4"
+                      "sha256":  "b67ab467fbdf86691e1575bd8b0330584f791437e487430b6687cbd12f68ab5e"
                   },
                   {
                       "path":  "CodexExecutableResolver.cs",
@@ -45,7 +45,7 @@
                   },
                   {
                       "path":  "CodexUsageWidget.csproj",
-                      "sha256":  "5cc26aa608a5e8715f5a42cfa3b81a15fbabe7652bbf3815fae2540d62f6bcdc"
+                      "sha256":  "c695b15589edf04de010b5f0bfa0781d06bd7b134729106dd39642b56f0fbf15"
                   },
                   {
                       "path":  "Directory.Build.props",
@@ -73,11 +73,11 @@
                   },
                   {
                       "path":  "MainWindow.xaml.cs",
-                      "sha256":  "79b7fa41c2600eae47df030ec8d1351d9ba82ab04f5cf9f542a45d870b01e753"
+                      "sha256":  "ecbfd22e28cff98a498c5d8c4ad11766a9815b1d5e95583a89ced51b7cc433a1"
                   },
                   {
                       "path":  "Models.cs",
-                      "sha256":  "dfdc2ed4ac1173232959cfad8c98bf42f5f67e20b3cc677f9628c87a3874aa14"
+                      "sha256":  "f00a65fd3f44947a7a8ec8f7cddd73f74c0206b471f833ad9bc1c54e8dcf5d96"
                   },
                   {
                       "path":  "restart-widget.ps1",
@@ -101,7 +101,7 @@
                   },
                   {
                       "path":  "TiboPollingPolicy.cs",
-                      "sha256":  "1ee6d0b1e3aed3a3ba20d0d9aa78d2ff0c36d0af7ced1ca589673b9d689e50cc"
+                      "sha256":  "19ccf65ac701a3674534b94d59d6150a5342be177192a278ec72b5acfbf92d48"
                   },
                   {
                       "path":  "TiboResetMonitor.cs",
@@ -109,11 +109,11 @@
                   },
                   {
                       "path":  "TiboStatusCoordinator.cs",
-                      "sha256":  "50f809b68cd964738c3cbf5f3d448e6873a901fb31264ba625850e45d971d10e"
+                      "sha256":  "e360298c74d98df9dd2a073b3cfbfdd27cf2756f223cbb6814b5d40f453aa715"
                   },
                   {
                       "path":  "UsageAgent.cs",
-                      "sha256":  "4c6f5a873ab616e2574517719cc44b23df57d2720bbd570570617051954efe18"
+                      "sha256":  "138888f6a582d378ba992fdb9e22ac5a6b95fba14b4472b6bfcdc501dfd476dd"
                   },
                   {
                       "path":  "UsageHintPolicy.cs",
@@ -121,7 +121,7 @@
                   },
                   {
                       "path":  "UsageWindowSelector.cs",
-                      "sha256":  "77682131fd05cff3c27e8db65531266dc308d0a45cf09d16bf9c225b612eff62"
+                      "sha256":  "1d0cad252a702d0d0b09cc07266af1bc1141d74cb6dd24b01eefa12f1de87c7a"
                   },
                   {
                       "path":  "verify-widget.ps1",
@@ -133,7 +133,7 @@
                   },
                   {
                       "path":  "WidgetRuntimeStatus.cs",
-                      "sha256":  "c3fbdd51bc278356d4db99f5eb26672fb4fd9c6c258f4ba3efae5376141d31e9"
+                      "sha256":  "1315a243ed1fa5f2e561140d7fb5b1f30840b5f3d4f65b6280bec9ff67b91e2e"
                   },
                   {
                       "path":  "WidgetDataPaths.cs",
@@ -161,7 +161,7 @@
                   },
                   {
                       "path":  "README.github.md",
-                      "sha256":  "08b247f9870ecb6f4cc7584d60a12147f28efe7af28c7dec597116e57ece9e97"
+                      "sha256":  "1b9c777c9ed580ec21aa0dffe674f802720e3f4b3dbeb777090ca488bfb234fc"
                   },
                   {
                       "path":  "Assets/mali-yaya.png",
@@ -229,7 +229,7 @@
                   },
                   {
                       "path":  "PRIVACY.md",
-                      "sha256":  "55e16d24c3d2d8a750d583c48f0efecf0e195a7536a66914b31f7451b614afdc"
+                      "sha256":  "de7ae191790b5a852e3822bcd591201e6cf5e6a161ae47f32d31636f0da514f1"
                   },
                   {
                       "path":  "SECURITY.md",
@@ -241,11 +241,11 @@
                   },
                   {
                       "path":  "README.en.md",
-                      "sha256":  "4ccaa8285b78bbb3e51a88b31d3eea4ec6ff239b9bc313df1fd33946015808e3"
+                      "sha256":  "f73d0138237665c7c848b8cbf2a8fbd51976b233f39e7e9fb6d6437fb3bc863b"
                   },
                   {
                       "path":  "CHANGELOG.md",
-                      "sha256":  "35a14e00e2c64242d44f0ea1d35226c90a672156e3446608aff90e6c86efe68f"
+                      "sha256":  "b44985ac497824143fdd6979372ee9101ee988ff1fc5ad7377c95f8a6dfa43ed"
                   },
                   {
                       "path":  "launcher/WidgetLauncher.cs",
@@ -333,7 +333,7 @@
                   },
                   {
                       "path":  "docs/UPGRADE-VERIFICATION.md",
-                      "sha256":  "5b7c5df76e921ab4726548999b851c62a431093b749e3fd182e82a4634eeba56"
+                      "sha256":  "29801c035cd4d6ea8da2e33429c4ac8329e9b47f53e2bc984dccee1b58bf986a"
                   },
                   {
                       "path":  "docs/RELEASE-ACCEPTANCE.md",
@@ -349,7 +349,11 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "08b247f9870ecb6f4cc7584d60a12147f28efe7af28c7dec597116e57ece9e97"
+                      "sha256":  "1b9c777c9ed580ec21aa0dffe674f802720e3f4b3dbeb777090ca488bfb234fc"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/BoundarySafetyTests.cs",
+                      "sha256":  "ea4c1e0880a0946baa1c8eae7848f195962c0b6402a63ccca8e46cbc8dd2eeb3"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/CiContractTests.cs",
@@ -357,7 +361,7 @@
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/CodexClientRecoveryTests.cs",
-                      "sha256":  "dcb86982d299137aae41898d33e1d8003e3eacd74e537dcd58f67c7dc349baa6"
+                      "sha256":  "fead0f2d4d50fbbffac46f1e3dae2c798d34aeafe435695cfa4ebe86734922e7"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/CodexDiscoveryTests.cs",
@@ -413,7 +417,7 @@
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/TiboPrivacyUiTests.cs",
-                      "sha256":  "a202147c7068ba33ecab4ca7ec1c2f72db5ca565a9d0ec4afc907a1e6116ccb5"
+                      "sha256":  "3340e3c04445c60f019ac3a6e9dccb73634cdf435dabbbf35729b601cf4fa47e"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/TiboResetMonitorTests.cs",

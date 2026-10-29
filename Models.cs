@@ -14,6 +14,9 @@ public sealed class RateLimitResponse
 public sealed class RateLimitSnapshot
 {
     [JsonIgnore]
+    public Guid? ConnectionSessionId { get; set; }
+
+    [JsonIgnore]
     public int? ResetOpportunityCount { get; set; }
 
     [JsonIgnore]
@@ -46,6 +49,7 @@ public sealed class RateLimitSnapshot
 
 public sealed class RateLimitWindow
 {
+    [JsonRequired]
     [JsonPropertyName("usedPercent")]
     public int UsedPercent { get; set; }
 
@@ -76,9 +80,10 @@ public sealed class RateLimitResetCreditsSnapshot
     [JsonPropertyName("credits")]
     public List<RateLimitResetCreditSnapshot> Credits { get; set; } = [];
 
-    public long? FindNextExpiry() => Credits
-        .Where(credit => string.Equals(credit.Status, "available", StringComparison.OrdinalIgnoreCase))
-        .Where(credit => credit.ExpiresAt.HasValue)
+    public long? FindNextExpiry() => (Credits ?? [])
+        .Where(credit => credit is not null &&
+            string.Equals(credit.Status, "available", StringComparison.OrdinalIgnoreCase))
+        .Where(credit => credit.ExpiresAt is >= -62135596800 and <= 253402300799)
         .Select(credit => credit.ExpiresAt)
         .DefaultIfEmpty()
         .Min();

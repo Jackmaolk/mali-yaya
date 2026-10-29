@@ -8,7 +8,7 @@ public sealed record CountdownCheckpoint(long ResetsAt, DateTimeOffset Confirmed
 
 public static class WidgetRuntimeStatus
 {
-    public const string BuildVersion = "2026.10.28.5";
+    public const string BuildVersion = "2026.10.29.1";
 
     public static void Write(RateLimitSnapshot? snapshot, TiboSignal? signal, bool running = true,
         string? chineseBrief = null, string? translationProvider = null,

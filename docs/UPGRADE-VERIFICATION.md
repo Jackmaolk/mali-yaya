@@ -1,3 +1,25 @@
+# 2026.10.29.1 Hardening Follow-Up
+
+Branch: `fix/monitor-hardening`, based on the reviewed .NET 10 candidate. The public homepage documentation remains independently merged; no application merge or live replacement is part of this change.
+
+## Reproduced And Fixed
+
+- Boundary tests reproduced 7 failures out of 9: missing usage silently became zero, a long-duration absolute-value overflow, null/invalid credit expiry data, and cached notices never expiring.
+- Client tests reproduced 7 failures: invalid snapshots were published, malformed usage notifications were accepted, reset opportunities crossed reconnects, and count-only reports retained an unrelated expiry.
+- Four additional advice-boundary tests reproduced invalid Unix time, date subtraction and duration overflow; optional invalid reset timestamps now become unknown without losing valid quota.
+- Three UI regressions also reproduced invalid Unix/Beijing-offset date crashes; expiry formatting now retains the count without an invalid date.
+- Added positive checks for explicit 0/42/100 usage, valid neighboring credits and confirmed recovery surviving announcement expiry.
+- Bilingual WPF tests verify clock-only expiry sends no HTTP. Connection-boundary tests verify same-connection behavior is preserved while a fresh transport cannot reuse recovery/countdown state. Random markers are never serialized or restored; no account identifier or credentials are read.
+
+## Current Local Verification
+
+- Full .NET 10 suite: **731 passed, 0 failed, 0 skipped** (38 added).
+- No dependency changes. The local NuGet audit source still emits NU1900; no current local audit success or coverage percentage is claimed.
+- Runtime-contract fixtures (41), isolated launcher checks (26), icon sizes (9), package checks (3) and source-export safety checks (8) passed locally. The final artifact is separately rebuilt after the last date-boundary fix. Hosted CI must be associated with the exact uploaded SHA rather than inferred from the older candidate.
+- This is not a clean-machine, real account-switch, signed-distribution or live hot-update acceptance result. New-connection baseline reset is intentionally conservative: it may miss a recovery that happened between connections rather than infer it across unbound accounts.
+
+---
+
 # 2026.10.28.5 Verification Record
 
 Feature branch: `feat/release-readiness-net10`. Main is not overwritten or merged.

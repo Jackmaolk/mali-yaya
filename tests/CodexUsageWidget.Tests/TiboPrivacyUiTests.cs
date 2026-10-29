@@ -117,6 +117,66 @@ public sealed class TiboPrivacyUiTests
         Assert.Equal("Automatic updates off", menu.Header);
     });
 
+    [Theory]
+    [InlineData("zh-CN", "预告参考时间已过，待确认")]
+    [InlineData("en-US", "Announced time passed; unconfirmed")]
+    public void LocalClockExpiresCachedAnnouncementWithoutAnyNetworkRequest(string culture, string heading) => Sta(() =>
+    {
+        var handler = new CountingHandler();
+        using var http = new HttpClient(handler);
+        using var monitor = new TiboResetMonitor(http);
+        var window = new MainWindow(CultureInfo.GetCultureInfo(culture), new(false, false), monitor);
+        Invoke(window, "ApplySnapshot", Snapshot());
+        var coordinator = (TiboStatusCoordinator)typeof(MainWindow).GetField("_tiboStatus", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(window)!;
+        var now = DateTimeOffset.UtcNow;
+        coordinator.OnSignal(new(TiboSignalKind.Planned, "Tibo 预告重置", "北京时间待确认", null, now.AddHours(-1), now.AddMinutes(-2))
+        {
+            ExpectedAt = now.AddMinutes(-5), ExpectedEndAt = now.AddSeconds(-1)
+        }, now.AddMinutes(-2));
+        Assert.Equal(TiboSignalKind.Planned, coordinator.Display!.Kind);
+        Invoke(window, "UpdateResetLabels");
+        Assert.Equal(TiboSignalKind.ExpiredNotice, coordinator.Display.Kind);
+        Assert.Equal(heading, Find<TextBlock>(window, "TiboHeadlineText").Text);
+        Assert.Equal("74%", Find<TextBlock>(window, "FiveHourRemainingText").Text);
+        Assert.False(coordinator.TakeCelebration());
+        Assert.Equal(0, handler.Calls);
+    });
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void MissingClockTimestampReusesCacheOnlyWithinSameConnection(bool sameConnection) => Sta(() =>
+    {
+        var window = new MainWindow(CultureInfo.GetCultureInfo("en-US"), new(false, false), null);
+        var first = Snapshot();
+        first.ConnectionSessionId = Guid.NewGuid();
+        Invoke(window, "ApplySnapshot", first);
+        var next = Snapshot();
+        next.ConnectionSessionId = sameConnection ? first.ConnectionSessionId : Guid.NewGuid();
+        next.Primary!.ResetsAt = null;
+        Invoke(window, "ApplySnapshot", next);
+        var clock = typeof(MainWindow).GetField("_countdownWindow", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(window);
+        Assert.Equal(sameConnection, clock is not null);
+        if (!sameConnection)
+            Assert.Equal(Visibility.Collapsed, Find<StackPanel>(window, "CountdownNumbers").Visibility);
+    });
+
+    [Theory]
+    [InlineData(long.MinValue)]
+    [InlineData(long.MaxValue)]
+    [InlineData(253402300799)]
+    public void InvalidCreditExpiryKeepsCountInsteadOfCrashingChineseTimeFormatting(long expiry) => Sta(() =>
+    {
+        var window = new MainWindow(CultureInfo.GetCultureInfo("en-US"), new(false, false), null);
+        var snapshot = Snapshot();
+        snapshot.ResetOpportunityReported = true;
+        snapshot.ResetOpportunityCount = 2;
+        snapshot.ResetOpportunityExpiresAt = expiry;
+        Invoke(window, "ApplySnapshot", snapshot);
+        Assert.Equal(new UiText(CultureInfo.GetCultureInfo("en-US")).Format("可用 {0} 次", 2),
+            Find<TextBlock>(window, "ResetChanceText").Text);
+    });
+
     private sealed class CountingHandler : HttpMessageHandler
     {
         public int Calls;
