@@ -656,7 +656,7 @@ public sealed class TiboResetMonitorTests
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (!request.Headers.UserAgent.ToString().Contains("CodexUsageWidget/1.0"))
+            if (!request.Headers.UserAgent.ToString().Contains("MaliYaya/1.0"))
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Unauthorized));
             var content = request.RequestUri!.Host == "api.fxtwitter.com" ? post : feed;
             if (request.RequestUri.Host == "api.fxtwitter.com") PostRequestCount++;

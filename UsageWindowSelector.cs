@@ -6,9 +6,9 @@ public static class UsageWindowSelector
     private const long WeeklyWindowMinimumMinutes = 6 * 24 * 60;
 
     public static RateLimitWindow? FindFiveHour(RateLimitSnapshot snapshot) => GetWindows(snapshot)
-        .Where(window => window.WindowDurationMins.HasValue)
+        .Where(window => window.WindowDurationMins is >= FiveHourWindowMinutes - 5 and <= FiveHourWindowMinutes + 5)
         .OrderBy(window => Math.Abs(window.WindowDurationMins!.Value - FiveHourWindowMinutes))
-        .FirstOrDefault(window => Math.Abs(window.WindowDurationMins!.Value - FiveHourWindowMinutes) <= 5);
+        .FirstOrDefault();
 
     public static RateLimitWindow? FindWeekly(RateLimitSnapshot snapshot)
     {

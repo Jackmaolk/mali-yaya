@@ -417,6 +417,114 @@ public sealed class CodexClientRecoveryTests
         Assert.False(connection.Messages[2].GetProperty("params").GetProperty("refreshToken").GetBoolean());
     }
 
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"usedPercent\":-1}")]
+    [InlineData("{\"usedPercent\":101}")]
+    [InlineData("{\"usedPercent\":42,\"windowDurationMins\":-9223372036854775808}")]
+    public async Task InvalidWindowNeverPublishesFalseFullAllowance(string window)
+    {
+        var connection = new FakeConnection();
+        connection.OnWrite = (method, id) =>
+        {
+            if (method != "account/rateLimits/read") return false;
+            connection.Result(id!.Value, "{\"rateLimits\":{\"primary\":" + window + "}}");
+            return true;
+        };
+        await using var client = Client(Resolver(), _ => connection);
+        var snapshots = new List<RateLimitSnapshot>();
+        client.SnapshotUpdated += snapshots.Add;
+        await client.RefreshAsync().WaitAsync(Guard);
+        Assert.Empty(snapshots);
+        Assert.True(connection.Killed);
+    }
+
+    [Fact]
+    public async Task MissingUsageNotificationCannotPublishAFalseRecovery()
+    {
+        var connection = new FakeConnection();
+        await using var client = Client(Resolver(), _ => connection);
+        var snapshots = new List<RateLimitSnapshot>();
+        client.SnapshotUpdated += snapshots.Add;
+        await client.RefreshAsync().WaitAsync(Guard);
+        var disconnected = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        client.ConnectionStatusChanged += _ => disconnected.TrySetResult();
+        connection.Output("{\"method\":\"account/rateLimits/updated\",\"params\":{\"rateLimits\":{\"primary\":{\"windowDurationMins\":10080}}}}");
+        await disconnected.Task.WaitAsync(Guard);
+        Assert.Single(snapshots);
+        Assert.Equal(42, snapshots[0].Primary!.UsedPercent);
+    }
+
+    [Fact]
+    public async Task ResetOpportunitiesAreNotCarriedIntoANewConnection()
+    {
+        var first = new FakeConnection();
+        first.OnWrite = (method, id) =>
+        {
+            if (method != "account/rateLimits/read") return false;
+            first.Result(id!.Value, "{\"rateLimits\":{\"primary\":{\"usedPercent\":42}},\"rateLimitResetCredits\":{\"availableCount\":2,\"credits\":[{\"status\":\"available\",\"expiresAt\":1794000000}]}}");
+            return true;
+        };
+        var starts = 0;
+        await using var client = Client(Resolver(), _ => ++starts == 1 ? first : new FakeConnection());
+        var snapshots = new List<RateLimitSnapshot>();
+        client.SnapshotUpdated += snapshots.Add;
+        await client.RefreshAsync().WaitAsync(Guard);
+        Assert.Equal(2, snapshots[0].ResetOpportunityCount);
+        first.Kill();
+        await client.RefreshAsync().WaitAsync(Guard);
+        Assert.Equal(2, starts);
+        Assert.Null(snapshots[1].ResetOpportunityCount);
+        Assert.Null(snapshots[1].ResetOpportunityExpiresAt);
+        Assert.False(snapshots[1].ResetOpportunityReported);
+        Assert.NotNull(snapshots[0].ConnectionSessionId);
+        Assert.NotNull(snapshots[1].ConnectionSessionId);
+        Assert.NotEqual(snapshots[0].ConnectionSessionId, snapshots[1].ConnectionSessionId);
+    }
+
+    [Fact]
+    public async Task CountOnlyReportCannotReuseExpiryFromDifferentCreditData()
+    {
+        var connection = new FakeConnection();
+        var reads = 0;
+        connection.OnWrite = (method, id) =>
+        {
+            if (method != "account/rateLimits/read") return false;
+            connection.Result(id!.Value, ++reads == 1
+                ? "{\"rateLimits\":{\"primary\":{\"usedPercent\":42}},\"rateLimitResetCredits\":{\"availableCount\":2,\"credits\":[{\"status\":\"available\",\"expiresAt\":1794000000}]}}"
+                : "{\"rateLimits\":{\"primary\":{\"usedPercent\":42}},\"availableResets\":1}");
+            return true;
+        };
+        await using var client = Client(Resolver(), _ => connection);
+        var snapshots = new List<RateLimitSnapshot>();
+        client.SnapshotUpdated += snapshots.Add;
+        await client.RefreshAsync().WaitAsync(Guard);
+        await client.RefreshAsync().WaitAsync(Guard);
+        Assert.Equal(1, snapshots[1].ResetOpportunityCount);
+        Assert.Null(snapshots[1].ResetOpportunityExpiresAt);
+    }
+
+    [Theory]
+    [InlineData(long.MinValue)]
+    [InlineData(long.MaxValue)]
+    public async Task InvalidOptionalResetTimeKeepsValidUsageButBecomesUnknown(long reset)
+    {
+        var connection = new FakeConnection();
+        connection.OnWrite = (method, id) =>
+        {
+            if (method != "account/rateLimits/read") return false;
+            connection.Result(id!.Value, "{\"rateLimits\":{\"primary\":{\"usedPercent\":42,\"windowDurationMins\":10080,\"resetsAt\":" + reset + "}}}");
+            return true;
+        };
+        await using var client = Client(Resolver(), _ => connection);
+        var snapshots = new List<RateLimitSnapshot>();
+        client.SnapshotUpdated += snapshots.Add;
+        await client.RefreshAsync().WaitAsync(Guard);
+        Assert.Single(snapshots);
+        Assert.Equal(42, snapshots[0].Primary!.UsedPercent);
+        Assert.Null(snapshots[0].Primary!.ResetsAt);
+    }
+
     private static CodexRateLimitClient Client(CodexExecutableResolver resolver,
         Func<string, ICodexConnection> connect, ManualClock? clock = null, string? executable = null) =>
         new(executable, resolver, connect, TimeSpan.FromMinutes(5), TimeSpan.Zero, clock);

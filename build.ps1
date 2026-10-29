@@ -1,5 +1,7 @@
 ﻿param([switch]$InstallDesktop)
 $ErrorActionPreference = "Stop"
+$sdk = dotnet --version
+if ($LASTEXITCODE -ne 0 -or $sdk -notmatch '^10\.') { throw 'Build requires the .NET 10 SDK. Runtime-only installs cannot compile this project.' }
 $project = Join-Path $PSScriptRoot "CodexUsageWidget.csproj"
 $output = Join-Path $PSScriptRoot "publish"
 dotnet publish $project -c Release -r win-x64 --self-contained false -p:PublishSingleFile=false -p:UseAppHost=false -o $output

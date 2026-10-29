@@ -25,9 +25,6 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
     private int _pendingChanges;
     private long _nextRequestId;
     private int _consecutiveRefreshFailures;
-    private int? _lastResetOpportunityCount;
-    private long? _lastResetOpportunityExpiresAt;
-    private bool _resetOpportunityReported;
     private volatile bool _initialized;
     private int _disposed;
     private string? _executableOverride;
@@ -55,6 +52,7 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
 
     private sealed class Connection(ICodexConnection transport, CancellationToken token)
     {
+        public Guid SessionId { get; } = Guid.NewGuid();
         public ICodexConnection Transport { get; } = transport;
         public CancellationTokenSource Cancellation { get; } = CancellationTokenSource.CreateLinkedTokenSource(token);
         public ConcurrentDictionary<long, TaskCompletionSource<JsonElement>> Pending { get; } = new();
@@ -63,6 +61,9 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
         public string? StartupIssue { get; set; }
         public bool StartupIncompatible { get; set; }
         public volatile bool Broken;
+        public int? ResetOpportunityCount;
+        public long? ResetOpportunityExpiresAt;
+        public bool ResetOpportunityReported;
     }
 
     public CodexInstallation? Installation { get; private set; }
@@ -167,7 +168,9 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
                     var result = await SendRequestAsync(connection, "account/rateLimits/read", null, token);
                     var response = result.Deserialize<RateLimitResponse>(_jsonOptions);
                     if (response?.RateLimits is null) throw new InvalidDataException("Codex 未返回用量数据。");
-                    ApplyResetCredits(response.RateLimits, response.RateLimitResetCredits, result);
+                    ValidateSnapshot(response.RateLimits);
+                    ApplyResetCredits(connection, response.RateLimits, response.RateLimitResetCredits, result);
+                    response.RateLimits.ConnectionSessionId = connection.SessionId;
                     _consecutiveRefreshFailures = 0;
                     SnapshotUpdated?.Invoke(response.RateLimits);
                     return;
@@ -318,10 +321,12 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
                     var snapshot = rateLimits.Deserialize<RateLimitSnapshot>(_jsonOptions);
                     if (snapshot is not null)
                     {
+                        ValidateSnapshot(snapshot);
                         RateLimitResetCreditsSnapshot? resetCredits = null;
                         if (notificationParams.TryGetProperty("rateLimitResetCredits", out var resetCreditsElement))
                             resetCredits = resetCreditsElement.Deserialize<RateLimitResetCreditsSnapshot>(_jsonOptions);
-                        ApplyResetCredits(snapshot, resetCredits, notificationParams);
+                        ApplyResetCredits(connection, snapshot, resetCredits, notificationParams);
+                        snapshot.ConnectionSessionId = connection.SessionId;
                         SnapshotUpdated?.Invoke(snapshot);
                     }
                 }
@@ -351,7 +356,20 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
         connection.StartupIssue is { } issue ? new CodexDiscoveryException(issue) :
         new IOException("Codex app-server connection closed.");
 
-    private void ApplyResetCredits(
+    private static void ValidateSnapshot(RateLimitSnapshot snapshot)
+    {
+        foreach (var window in new[] { snapshot.Primary, snapshot.Secondary })
+        {
+            if (window is not null && (window.UsedPercent is < 0 or > 100 ||
+                window.WindowDurationMins is <= 0 or > 525600))
+                throw new InvalidDataException("Codex 返回的额度窗口数据无效。");
+            if (window?.ResetsAt is < -62135596800 or > 253402300799)
+                window.ResetsAt = null;
+        }
+    }
+
+    private static void ApplyResetCredits(
+        Connection connection,
         RateLimitSnapshot snapshot,
         RateLimitResetCreditsSnapshot? resetCredits,
         JsonElement fallbackElement)
@@ -359,19 +377,21 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
         var fallbackCount = FindResetOpportunityCount(fallbackElement);
         if (resetCredits is not null)
         {
-            _lastResetOpportunityCount = Math.Max(0, resetCredits.AvailableCount);
-            _lastResetOpportunityExpiresAt = resetCredits.FindNextExpiry();
-            _resetOpportunityReported = true;
+            connection.ResetOpportunityCount = Math.Max(0, resetCredits.AvailableCount);
+            connection.ResetOpportunityExpiresAt = resetCredits.FindNextExpiry();
+            connection.ResetOpportunityReported = true;
         }
         else if (fallbackCount.HasValue)
         {
-            _lastResetOpportunityCount = Math.Max(0, fallbackCount.Value);
-            _resetOpportunityReported = true;
+            connection.ResetOpportunityCount = Math.Max(0, fallbackCount.Value);
+            connection.ResetOpportunityExpiresAt = null;
+            connection.ResetOpportunityReported = true;
         }
 
-        snapshot.ResetOpportunityCount = _lastResetOpportunityCount;
-        snapshot.ResetOpportunityExpiresAt = _lastResetOpportunityExpiresAt;
-        snapshot.ResetOpportunityReported = _resetOpportunityReported;
+        // Partial reports may reuse data only within this exact app-server connection.
+        snapshot.ResetOpportunityCount = connection.ResetOpportunityCount;
+        snapshot.ResetOpportunityExpiresAt = connection.ResetOpportunityExpiresAt;
+        snapshot.ResetOpportunityReported = connection.ResetOpportunityReported;
     }
 
     private static int? FindResetOpportunityCount(JsonElement element)
@@ -503,9 +523,6 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
             if (_disposed != 0) return;
             _executableOverride = executable;
             Installation = null;
-            _lastResetOpportunityCount = null;
-            _lastResetOpportunityExpiresAt = null;
-            _resetOpportunityReported = false;
         }
         finally
         {

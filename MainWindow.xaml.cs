@@ -17,13 +17,17 @@ public partial class MainWindow : Window
     private const double CollapsedHeight = WidgetLayoutPolicy.CollapsedHeight;
     private readonly UiText _text;
     private readonly CodexRateLimitClient _client = new(CodexConnectionSettings.LoadPath());
-    private readonly TiboResetMonitor _tiboMonitor = new();
-    private readonly TiboChineseBriefClient _chineseBriefClient = new();
+    private readonly TiboResetMonitor _tiboMonitor;
+    private TiboChineseBriefClient? _chineseBriefClient;
+    private readonly TiboNetworkGate _tiboNetwork = new();
+    private WidgetPreferences _preferences;
     private readonly WidgetUpdateService _updates = new();
     private WidgetUpdateOptions _updateOptions = WidgetUpdateSettings.Load();
     private readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromMinutes(15) };
     private CancellationTokenSource? _updateCancellation;
     private bool _updateChecking;
+    private int _updateGeneration;
+    private int _activeUpdateGeneration;
     private TiboStatusCoordinator _tiboStatus = new();
     private readonly DispatcherTimer _countdownTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly DispatcherTimer _refreshTimer = new() { Interval = TimeSpan.FromSeconds(15) };
@@ -54,8 +58,13 @@ public partial class MainWindow : Window
 
     public MainWindow() : this(null) { }
 
-    public MainWindow(CultureInfo? culture)
+    public MainWindow(CultureInfo? culture) : this(culture, WidgetPreferences.Load(), null) { }
+
+    internal MainWindow(CultureInfo? culture, WidgetPreferences preferences, TiboResetMonitor? monitor)
     {
+        _preferences = preferences;
+        _tiboMonitor = monitor ?? new TiboResetMonitor();
+        _tiboNetwork.SetEnabled(preferences.TiboEnabled);
         _text = new UiText(culture);
         InitializeComponent();
         foreach (var (key, source) in UiText.XamlSources)
@@ -64,11 +73,20 @@ public partial class MainWindow : Window
             ContextMenu.Resources[key] = _text.Get(source);
         }
         AutoUpdateMenu.IsChecked = _updateOptions.Enabled;
+        TiboNetworkMenu.IsChecked = _preferences.TiboEnabled;
+        CompactModeMenu.IsChecked = _preferences.CompactMode;
+        ApplyCompactMode();
+        RenderTiboStatus();
         UpdateStatusMenu.Header = _updateOptions.Enabled ? _text.Get("等待更新检查") : _text.Get("自动更新已关闭");
-        _updates.StatusChanged += status => Dispatcher.BeginInvoke(() =>
+        _updates.StatusChanged += status =>
         {
-            if (!_stopping) UpdateStatusMenu.Header = _text.Translate(status);
-        });
+            var generation = _activeUpdateGeneration;
+            Dispatcher.BeginInvoke(() =>
+            {
+                if (!_stopping && _updateOptions.Enabled && generation == _updateGeneration)
+                    UpdateStatusMenu.Header = _text.Translate(status);
+            });
+        };
         _updateTimer.Tick += async (_, _) => await CheckWidgetUpdateAsync();
         _client.SnapshotUpdated += snapshot => Dispatcher.Invoke(() => ApplySnapshot(snapshot));
         _client.ConnectionStatusChanged += status => Dispatcher.Invoke(() =>
@@ -83,7 +101,7 @@ public partial class MainWindow : Window
         _refreshTimer.Tick += async (_, _) => await ConnectAndRefreshAsync();
         _tiboTimer.Tick += async (_, _) =>
         {
-            if (_stopping || _tiboChecking) return;
+            if (_stopping || _tiboChecking || !_tiboNetwork.Enabled) return;
             UpdateTiboSchedule();
             if (DateTimeOffset.UtcNow >= _nextTiboCheckAt) await CheckTiboAsync();
         };
@@ -100,7 +118,7 @@ public partial class MainWindow : Window
         _settingStartup = false;
         _countdownTimer.Start();
         _refreshTimer.Start();
-        _tiboTimer.Start();
+        if (_tiboNetwork.Enabled) _tiboTimer.Start();
         _petTimer.Start();
         _updateTimer.Start();
         StartGlassSheen();
@@ -111,22 +129,29 @@ public partial class MainWindow : Window
     {
         if (_stopping || _updateChecking || !_updateOptions.Enabled) return;
         _updateChecking = true;
+        _activeUpdateGeneration = _updateGeneration;
+        var generation = _updateGeneration;
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         _updateCancellation = cancellation;
         var options = _updateOptions;
         try
         {
             var prepared = await _updates.CheckAsync(options, cancellation.Token);
-            if (prepared is null || _stopping || cancellation.IsCancellationRequested || options != _updateOptions) return;
+            if (prepared is null || _stopping || cancellation.IsCancellationRequested ||
+                generation != _updateGeneration || options != _updateOptions) return;
             UpdateStatusMenu.Header = _text.Get("更新已校验，准备切换组件…");
-            if (await WidgetUpdateInstaller.LaunchAsync(prepared, cancellation.Token)) Close();
-            else UpdateStatusMenu.Header = _text.Get("更新未能切换，继续使用当前版本");
+            using var handoff = await WidgetUpdateInstaller.LaunchAsync(prepared, cancellation.Token);
+            if (handoff is not null && !_stopping && !cancellation.IsCancellationRequested &&
+                generation == _updateGeneration && options == _updateOptions && _updateOptions.Enabled && handoff.TryCommit()) Close();
+            else if (!_stopping && _updateOptions.Enabled && generation == _updateGeneration)
+                UpdateStatusMenu.Header = _text.Get("更新未能切换，继续使用当前版本");
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) when (ex is System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or
             InvalidOperationException or System.ComponentModel.Win32Exception or System.Security.SecurityException)
         {
-            if (!_stopping) UpdateStatusMenu.Header = _text.Get("更新未能完成，继续使用当前版本");
+            if (!_stopping && _updateOptions.Enabled && generation == _updateGeneration)
+                UpdateStatusMenu.Header = _text.Get("更新未能完成，继续使用当前版本");
         }
         finally { _updateCancellation = null; _updateChecking = false; }
     }
@@ -144,12 +169,13 @@ public partial class MainWindow : Window
         {
             var next = _updateOptions with { Enabled = enabled };
             WidgetUpdateSettings.Save(next);
+            _updateGeneration++;
             _updateCancellation?.Cancel();
             _updateOptions = next;
             UpdateStatusMenu.Header = enabled ? _text.Get("等待更新检查") : _text.Get("自动更新已关闭");
             if (enabled) await CheckWidgetUpdateAsync();
         }
-        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (WidgetDataPaths.IsStorageError(ex))
         {
             AutoUpdateMenu.IsChecked = _updateOptions.Enabled;
             MessageBox.Show(this, _text.Get("无法保存更新设置，未改变原设置。"), _text.Get("自动更新"));
@@ -178,13 +204,14 @@ public partial class MainWindow : Window
             {
                 var next = new WidgetUpdateOptions(false, repository);
                 WidgetUpdateSettings.Save(next);
+                _updateGeneration++;
                 _updateCancellation?.Cancel();
                 _updateOptions = next;
                 AutoUpdateMenu.IsChecked = false;
                 UpdateStatusMenu.Header = _text.Get("更新仓库已保存，自动更新已关闭");
                 dialog.DialogResult = true;
             }
-            catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+            catch (Exception ex) when (WidgetDataPaths.IsStorageError(ex))
             { MessageBox.Show(dialog, _text.Get("无法保存更新设置。"), _text.Get("自动更新")); }
         };
         panel.Children.Add(save);
@@ -200,17 +227,18 @@ public partial class MainWindow : Window
 
     private async Task CheckTiboAsync()
     {
-        if (_tiboChecking || _stopping) return;
+        if (_tiboChecking || _stopping || !_tiboNetwork.TryCapture(out var token, out var generation)) return;
         _tiboChecking = true;
         try
         {
-            var signal = await _tiboMonitor.CheckAsync(_lifetime.Token);
-            if ((signal.Kind == TiboSignalKind.Unavailable || signal.VerificationDegraded) && !_stopping)
+            var signal = await _tiboMonitor.CheckAsync(token);
+            if (!_tiboNetwork.IsCurrent(generation) || _stopping) return;
+            if (signal.Kind == TiboSignalKind.Unavailable || signal.VerificationDegraded)
             {
-                await Task.Delay(TimeSpan.FromSeconds(2), _lifetime.Token);
-                signal = await _tiboMonitor.CheckAsync(_lifetime.Token);
+                await Task.Delay(TimeSpan.FromSeconds(2), token);
+                signal = await _tiboMonitor.CheckAsync(token);
             }
-            if (_stopping) return;
+            if (_stopping || !_tiboNetwork.IsCurrent(generation)) return;
             _tiboFailures = signal.Kind == TiboSignalKind.Unavailable || signal.VerificationDegraded
                 ? Math.Min(16, _tiboFailures + 1) : 0;
             _tiboStatus.OnSignal(signal, DateTimeOffset.Now);
@@ -223,12 +251,18 @@ public partial class MainWindow : Window
             UpdateTiboSchedule(completed: true);
             WriteRuntimeStatus();
         }
-        catch (OperationCanceledException) when (_stopping) { }
+        catch (OperationCanceledException) when (_stopping || token.IsCancellationRequested) { }
         finally { _tiboChecking = false; }
     }
 
     private void UpdateTiboSchedule(bool completed = false)
     {
+        if (!_tiboNetwork.Enabled)
+        {
+            _nextTiboCheckAt = DateTimeOffset.MaxValue;
+            _refreshTimer.Interval = TimeSpan.FromSeconds(15);
+            return;
+        }
         var now = DateTimeOffset.UtcNow;
         var plan = TiboPollingPolicy.For(_tiboStatus.Display, now, _tiboFailures);
         if (completed || plan != _pollingPlan)
@@ -265,7 +299,18 @@ public partial class MainWindow : Window
     private void RenderTiboStatus()
     {
             var signal = _tiboStatus.Display;
-            if (signal is null) return;
+            if (signal is null)
+            {
+                if (!_tiboNetwork.Enabled)
+                {
+                    TiboHeadlineText.Text = _text.Get("Tibo 联网已关闭");
+                    TiboDetailText.Text = _text.Get("右键开启动态监测；额度和倒计时照常刷新。");
+                    TiboDetailText.Visibility = Visibility.Visible;
+                    TiboOriginalText.Visibility = TiboChineseText.Visibility = TiboOpenText.Visibility = Visibility.Collapsed;
+                    TiboPanel.ToolTip = TiboDetailText.Text;
+                }
+                return;
+            }
             var newAnnouncement = signal.Kind is TiboSignalKind.Planned or TiboSignalKind.Bonus or TiboSignalKind.Confirmed &&
                                   (_tiboSignal?.Kind != signal.Kind || _tiboSignal.SourceUrl != signal.SourceUrl);
             _tiboSignal = signal;
@@ -311,14 +356,14 @@ public partial class MainWindow : Window
     private void TiboPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         e.Handled = true;
-        if (_tiboSignal?.SourceUrl is not { } url) return;
+        if (!_tiboNetwork.Enabled || _tiboSignal?.SourceUrl is not { } url) return;
         Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
     }
 
     private void LatestTiboPost_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         e.Handled = true;
-        if (_tiboStatus.Display?.LatestPost is { } post)
+        if (_tiboNetwork.Enabled && _tiboStatus.Display?.LatestPost is { } post)
             Process.Start(new ProcessStartInfo(post.SourceUrl) { UseShellExecute = true });
     }
 
@@ -355,9 +400,9 @@ public partial class MainWindow : Window
             TiboChineseText.Text = _text.Get("中文：正在获取译文…");
             TiboChineseText.ToolTip = _text.Get("中文机译节选，完整译文获取后可悬停查看");
         }
-        if (_briefPending || DateTimeOffset.UtcNow < _briefRetryAt) return;
+        if (_briefPending || DateTimeOffset.UtcNow < _briefRetryAt || !_tiboNetwork.TryCapture(out var sessionToken, out _)) return;
         _briefCancellation?.Dispose();
-        _briefCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _briefCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, sessionToken);
         _briefPending = true;
         _briefRetryAt = DateTimeOffset.UtcNow.AddMinutes(2);
         _ = FetchChineseBriefAsync(post, key, _briefCancellation.Token);
@@ -367,9 +412,11 @@ public partial class MainWindow : Window
     {
         try
         {
+            if (!_tiboNetwork.Enabled || cancellationToken.IsCancellationRequested) return;
+            _chineseBriefClient ??= new TiboChineseBriefClient();
             var brief = await _chineseBriefClient.GetAsync(post, cancellationToken);
             // A slow reply must never attach the previous post's translation to a new post.
-            if (_stopping || cancellationToken.IsCancellationRequested || _briefKey != key) return;
+            if (_stopping || !_tiboNetwork.Enabled || cancellationToken.IsCancellationRequested || _briefKey != key) return;
             _chineseBrief = brief;
             TiboChineseText.Text = brief is null ? _text.Get("中文：暂时无法获取，稍后自动重试") :
                 _text.Get("中文：") + string.Join(" ", brief.Text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
@@ -444,6 +491,12 @@ public partial class MainWindow : Window
     private void ApplySnapshot(RateLimitSnapshot snapshot)
     {
         if (_stopping) return;
+        if (_snapshot?.ConnectionSessionId is { } previous && snapshot.ConnectionSessionId != previous)
+        {
+            _countdownWindow = null;
+            _countdownConfirmedAt = null;
+            _expiredFiveHourRefresh = null;
+        }
         _tiboStatus.OnSnapshot(snapshot, DateTimeOffset.Now);
         _snapshot = snapshot;
         PlanText.Text = snapshot.PlanType?.ToUpperInvariant() ?? "--";
@@ -514,6 +567,7 @@ public partial class MainWindow : Window
         FiveHourCard.Visibility = hasFiveHour ? Visibility.Visible : Visibility.Collapsed;
         WeeklyCard.Visibility = hasWeekly ? Visibility.Visible : Visibility.Collapsed;
         NoLimitsCard.Visibility = hasFiveHour || hasWeekly ? Visibility.Collapsed : Visibility.Visible;
+        ApplyCompactMode();
         if (!_collapsed)
         {
             Width = ExpandedWidth;
@@ -726,6 +780,17 @@ public partial class MainWindow : Window
     private void UpdateResetLabels()
     {
         var now = DateTimeOffset.UtcNow;
+        if (_tiboStatus.Tick(now))
+        {
+            RenderTiboStatus();
+            UpdateTiboSchedule();
+            if (_snapshot is not null)
+            {
+                ApplyAgentAdvice(CurrentAgentAdvice(_snapshot));
+                UpdatePetMood(_snapshot);
+            }
+            WriteRuntimeStatus();
+        }
         var fiveHour = _snapshot is null ? null : UsageWindowSelector.FindFiveHour(_snapshot);
         var weekly = _snapshot is null ? null : UsageWindowSelector.FindWeekly(_snapshot);
         var clock = _countdownWindow ?? fiveHour;
@@ -823,7 +888,9 @@ public partial class MainWindow : Window
         if (snapshot.ResetOpportunityExpiresAt is not long expiresAt)
             return _text.Format("可用 {0} 次", snapshot.ResetOpportunityCount);
 
-        var expiry = DateTimeOffset.FromUnixTimeSeconds(expiresAt).ToOffset(TimeSpan.FromHours(8));
+        DateTimeOffset expiry;
+        try { expiry = DateTimeOffset.FromUnixTimeSeconds(expiresAt).ToOffset(TimeSpan.FromHours(8)); }
+        catch (ArgumentOutOfRangeException) { return _text.Format("可用 {0} 次", snapshot.ResetOpportunityCount); }
         return _text.Format("可用 {0} 次 · {1:M月d日}前", snapshot.ResetOpportunityCount, expiry);
     }
 
@@ -902,8 +969,7 @@ public partial class MainWindow : Window
             ClearQuotaForConnectionChange();
             changed = true;
         }
-        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException or
-            ArgumentException or CodexDiscoveryException or System.Security.SecurityException)
+        catch (Exception ex) when (WidgetDataPaths.IsStorageError(ex) || ex is CodexDiscoveryException)
         {
             StatusText.Text = _text.Get("CLI 设置未完成；请查看错误提示。");
             MessageBox.Show(this, _text.ErrorMessage(ex.Message), _text.Get("Codex 连接设置"), MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -966,6 +1032,67 @@ public partial class MainWindow : Window
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
+    private async void TiboNetwork_Click(object sender, RoutedEventArgs e)
+    {
+        if (!SavePreferences(_preferences with { TiboEnabled = TiboNetworkMenu.IsChecked })) return;
+        SetTiboNetworking(_preferences.TiboEnabled);
+        if (_preferences.TiboEnabled) await CheckTiboAsync();
+    }
+
+    private void SetTiboNetworking(bool enabled)
+    {
+        _tiboNetwork.SetEnabled(enabled);
+        _briefCancellation?.Cancel();
+        _briefKey = null;
+        _briefPending = false;
+        _chineseBrief = null;
+        _tiboSignal = null;
+        _tiboStatus = new TiboStatusCoordinator();
+        if (_snapshot is not null) _tiboStatus.OnSnapshot(_snapshot, DateTimeOffset.Now);
+        _tiboFailures = 0;
+        _pollingPlan = null;
+        _nextTiboCheckAt = DateTimeOffset.MinValue;
+        if (enabled && IsLoaded) _tiboTimer.Start(); else _tiboTimer.Stop();
+        TiboHeadlineText.Text = _text.Get("Tibo 动态 · 正在检查");
+        TiboDetailText.Text = _text.Get("正在获取动态与本账户状态");
+        TiboOriginalText.Visibility = TiboChineseText.Visibility = TiboOpenText.Visibility = Visibility.Collapsed;
+        RenderTiboStatus();
+        UpdateTiboSchedule();
+        if (_snapshot is not null)
+        {
+            ApplyAgentAdvice(CurrentAgentAdvice(_snapshot));
+            UpdatePetMood(_snapshot);
+        }
+        WriteRuntimeStatus();
+    }
+
+    private void CompactMode_Click(object sender, RoutedEventArgs e)
+    {
+        if (SavePreferences(_preferences with { CompactMode = CompactModeMenu.IsChecked })) ApplyCompactMode();
+    }
+
+    private bool SavePreferences(WidgetPreferences next)
+    {
+        try { WidgetPreferences.Save(next); _preferences = next; return true; }
+        catch (Exception error) when (WidgetDataPaths.IsStorageError(error))
+        {
+            TiboNetworkMenu.IsChecked = _preferences.TiboEnabled;
+            CompactModeMenu.IsChecked = _preferences.CompactMode;
+            StatusText.Text = _text.Get("无法保存偏好设置，原设置未改变。");
+            return false;
+        }
+    }
+
+    private void ApplyCompactMode()
+    {
+        var visibility = _preferences.CompactMode ? Visibility.Collapsed : Visibility.Visible;
+        AgentPanel.Visibility = ResetInfoRow.Visibility = TiboPanel.Visibility = visibility;
+        PetMoodText.Visibility = visibility;
+        MascotViewport.Width = _preferences.CompactMode ? 30 : 43;
+        MascotViewport.Height = _preferences.CompactMode ? 44 : 64;
+        if (!_collapsed) { SizeToContent = SizeToContent.Height; Height = double.NaN; }
+    }
+
     private void StopMascotAnimations()
     {
         CharacterScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
@@ -1004,6 +1131,7 @@ public partial class MainWindow : Window
         _stopping = true;
         WriteRuntimeStatus(running: false);
         _lifetime.Cancel();
+        _tiboNetwork.Dispose();
         _updateCancellation?.Cancel();
         _briefCancellation?.Cancel();
         _countdownTimer.Stop();
@@ -1016,7 +1144,7 @@ public partial class MainWindow : Window
         GlassSheenTransform.BeginAnimation(TranslateTransform.XProperty, null);
         await _client.DisposeAsync();
         _tiboMonitor.Dispose();
-        _chineseBriefClient.Dispose();
+        _chineseBriefClient?.Dispose();
         _updates.Dispose();
         _briefCancellation?.Dispose();
         _shutdownComplete = true;

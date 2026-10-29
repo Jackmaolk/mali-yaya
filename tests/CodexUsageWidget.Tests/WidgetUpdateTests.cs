@@ -488,6 +488,139 @@ public sealed class WidgetUpdateTests : IDisposable
         Assert.DoesNotContain("private", service.State.Status);
     }
 
+    [Theory]
+    [InlineData("10.0.0", "10.0.0", null)]
+    [InlineData("10.0.7", "10.0.8", "LatestPatch")]
+    [InlineData("10.0.0", "10.0.0", "Minor")]
+    public async Task Net10RuntimeContractAcceptsStablePatchVersions(string core, string desktop, string? rollForward)
+    {
+        var config = JsonNode.Parse(RuntimeConfig(core, desktop))!.AsObject();
+        if (rollForward is not null) config["runtimeOptions"]!["rollForward"] = rollForward;
+        using var http = new HttpClient(Handler(Zip(runtimeConfig: config.ToJsonString())));
+        using var service = Create(http);
+
+        Assert.NotNull(await service.CheckAsync(Enabled));
+    }
+
+    [Theory]
+    [InlineData(9, 9)]
+    [InlineData(9, 10)]
+    [InlineData(10, 9)]
+    [InlineData(10, 11)]
+    [InlineData(11, 10)]
+    [InlineData(11, 11)]
+    public async Task ManifestAndFrameworkMajorsMustAgreeWithNet10(int manifestMajor, int frameworkMajor)
+    {
+        var version = $"{frameworkMajor}.0.0";
+        using var http = new HttpClient(Handler(Zip(runtimeConfig: RuntimeConfig(version, version), runtimeMajor: manifestMajor)));
+        using var service = Create(http);
+
+        Assert.Null(await service.CheckAsync(Enabled));
+        AssertNoStage();
+    }
+
+    [Theory]
+    [InlineData("tfm")]
+    [InlineData("mixed-major")]
+    [InlineData("missing-core")]
+    [InlineData("missing-desktop")]
+    [InlineData("duplicate-framework")]
+    [InlineData("extra-framework")]
+    [InlineData("framework-path")]
+    [InlineData("singular-framework")]
+    [InlineData("included-frameworks")]
+    [InlineData("probing-path")]
+    [InlineData("major-roll-forward")]
+    [InlineData("latest-major-roll-forward")]
+    [InlineData("framework-roll-forward")]
+    [InlineData("legacy-roll-forward")]
+    [InlineData("null-options")]
+    [InlineData("null-frameworks")]
+    [InlineData("wrong-config-properties")]
+    [InlineData("malformed")]
+    [InlineData("duplicate-property")]
+    [InlineData("oversized")]
+    public async Task IncompatibleRuntimeConfigurationsNeverStage(string defect)
+    {
+        var config = JsonNode.Parse(RuntimeConfig())!.AsObject();
+        var options = config["runtimeOptions"]!.AsObject();
+        var frameworks = options["frameworks"]!.AsArray();
+        switch (defect)
+        {
+            case "tfm": options["tfm"] = "net9.0"; break;
+            case "mixed-major": frameworks[1]!["version"] = "9.0.0"; break;
+            case "missing-core": frameworks.RemoveAt(0); break;
+            case "missing-desktop": frameworks.RemoveAt(1); break;
+            case "duplicate-framework": frameworks[1] = frameworks[0]!.DeepClone(); break;
+            case "extra-framework": frameworks.Add(new JsonObject { ["name"] = "Microsoft.AspNetCore.App", ["version"] = "10.0.0" }); break;
+            case "framework-path": frameworks[1]!["name"] = "../Microsoft.WindowsDesktop.App"; break;
+            case "singular-framework": options["framework"] = frameworks[0]!.DeepClone(); break;
+            case "included-frameworks": options["includedFrameworks"] = frameworks.DeepClone(); break;
+            case "probing-path": options["additionalProbingPaths"] = new JsonArray("../packages"); break;
+            case "major-roll-forward": options["rollForward"] = "Major"; break;
+            case "latest-major-roll-forward": options["rollForward"] = "LatestMajor"; break;
+            case "framework-roll-forward": frameworks[1]!["rollForward"] = "LatestMajor"; break;
+            case "legacy-roll-forward": options["rollForwardOnNoCandidateFx"] = 2; break;
+            case "null-options": config["runtimeOptions"] = null; break;
+            case "null-frameworks": options["frameworks"] = null; break;
+            case "wrong-config-properties": options["configProperties"] = new JsonArray(); break;
+        }
+        var json = defect switch
+        {
+            "malformed" => "{broken",
+            "duplicate-property" => config.ToJsonString().Replace("\"tfm\":", "\"tfm\":\"net9.0\",\"tfm\":"),
+            "oversized" => config.ToJsonString() + new string(' ', 32 * 1024),
+            _ => config.ToJsonString()
+        };
+        using var http = new HttpClient(Handler(Zip(runtimeConfig: json)));
+        using var service = Create(http);
+
+        Assert.Null(await service.CheckAsync(Enabled));
+        AssertNoStage();
+    }
+
+    [Theory]
+    [InlineData("10.1.0")]
+    [InlineData("10.0")]
+    [InlineData("10.0.0.1")]
+    [InlineData("10.0.0-preview.1")]
+    [InlineData("10.0.0/../9.0.0")]
+    [InlineData("../10.0.0")]
+    [InlineData("10.0.0\\..\\9.0.0")]
+    [InlineData("010.0.0")]
+    [InlineData("10.0.01")]
+    [InlineData("10.0.2147483648")]
+    public async Task RuntimeFrameworkVersionsMustBeCanonicalNet10Releases(string version)
+    {
+        using var http = new HttpClient(Handler(Zip(runtimeConfig: RuntimeConfig(version, "10.0.0"))));
+        using var service = Create(http);
+
+        Assert.Null(await service.CheckAsync(Enabled));
+        AssertNoStage();
+    }
+
+    private static string RuntimeConfig(string core = "10.0.0", string desktop = "10.0.0") => JsonSerializer.Serialize(new
+    {
+        runtimeOptions = new
+        {
+            tfm = "net10.0",
+            frameworks = new[]
+            {
+                new { name = "Microsoft.NETCore.App", version = core },
+                new { name = "Microsoft.WindowsDesktop.App", version = desktop }
+            }
+        }
+    });
+
+    [Fact]
+    public async Task UnsafeOptionalStorageDisablesUpdatesWithoutCrashingTheWidget()
+    {
+        using var http = new HttpClient(Handler(Zip()));
+        using var service = new WidgetUpdateService(http, @"\\server\share\updates", _clock);
+        Assert.Null(await service.CheckAsync(Enabled));
+        Assert.Equal("更新记录不可用，已停止检查", service.State.Status);
+    }
+
     private WidgetUpdateService Create(HttpClient http) => new(http, _directory, _clock);
 
     private void AssertNoStage() => Assert.Empty(Directory.Exists(_directory)
@@ -517,14 +650,15 @@ public sealed class WidgetUpdateTests : IDisposable
             digest = "sha256:" + Hash(zip), browser_download_url = DownloadUrl } }
     })!.AsObject();
 
-    private static byte[] Zip(string? defect = null)
+    private static byte[] Zip(string? defect = null, string? runtimeConfig = null, int runtimeMajor = 10)
     {
         var files = Names.ToDictionary(name => name, name => Encoding.UTF8.GetBytes("fixture " + name));
+        files[Names[3]] = Encoding.UTF8.GetBytes(runtimeConfig ?? RuntimeConfig());
         if (defect == "entry-large") files[Names[0]] = new byte[20 * 1024 * 1024 + 1];
         if (defect == "total-large") foreach (var name in Names) files[name] = new byte[11 * 1024 * 1024];
         var manifest = JsonSerializer.SerializeToNode(new
         {
-            product = "mali-yaya", version = ReleaseVersion, platform = "win-x64", runtimeMajor = 9,
+            product = "mali-yaya", version = ReleaseVersion, platform = "win-x64", runtimeMajor,
             files = files.ToDictionary(pair => pair.Key, pair => Hash(pair.Value))
         })!.AsObject();
         switch (defect)
@@ -535,7 +669,7 @@ public sealed class WidgetUpdateTests : IDisposable
             case "manifest-product": manifest["product"] = "other"; break;
             case "manifest-version": manifest["version"] = "2099.12.31.8"; break;
             case "manifest-platform": manifest["platform"] = "linux-x64"; break;
-            case "manifest-runtime": manifest["runtimeMajor"] = 10; break;
+            case "manifest-runtime": manifest["runtimeMajor"] = 9; break;
         }
         using var bytes = new MemoryStream();
         using (var archive = new ZipArchive(bytes, ZipArchiveMode.Create, leaveOpen: true))

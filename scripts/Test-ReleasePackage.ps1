@@ -14,7 +14,7 @@ try {
 }
 finally { $archive.Dispose() }
 $manifest = Get-Content -LiteralPath (Join-Path $destination 'release-manifest.json') -Raw | ConvertFrom-Json
-if ($manifest.product -ne 'mali-yaya' -or $manifest.version -ne $Version -or $manifest.runtimeMajor -ne 9) { throw 'Incorrect release identity.' }
+if ($manifest.product -ne 'mali-yaya' -or $manifest.version -ne $Version -or $manifest.runtimeMajor -ne 10) { throw 'Incorrect release identity.' }
 foreach ($name in $expected) {
     if ($manifest.files.$name -cne (Get-FileHash -LiteralPath (Join-Path $destination $name)).Hash.ToLowerInvariant()) { throw 'Manifest hash mismatch.' }
 }

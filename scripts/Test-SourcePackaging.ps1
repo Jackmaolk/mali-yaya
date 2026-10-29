@@ -5,6 +5,22 @@ New-Item -ItemType Directory -Path $testRoot | Out-Null
 $baseline = Join-Path $testRoot 'baseline'
 & (Join-Path $PSScriptRoot 'Prepare-Source.ps1') -Destination $baseline
 
+foreach ($name in @('README.md', 'README.en.md')) {
+    $readme = [IO.File]::ReadAllText((Join-Path $baseline $name))
+    if (-not $readme.StartsWith('# Codex MaliYaya') -or
+        [regex]::Matches($readme, '<img\s').Count -ne 15 -or
+        -not $readme.Contains('.NET 10')) { throw 'Homepage branding/gallery/runtime contract mismatch.' }
+    foreach ($image in [regex]::Matches($readme, '<img src="([^"]+)"')) {
+        $uri = [uri]$image.Groups[1].Value
+        $prefix = '/Jackmaolk/mali-yaya/main/docs/images/'
+        if ($uri.Host -cne 'raw.githubusercontent.com' -or
+            -not $uri.AbsolutePath.StartsWith($prefix, [StringComparison]::Ordinal)) { throw 'Unexpected gallery URL.' }
+        $relative = 'docs/images/' + $uri.AbsolutePath.Substring($prefix.Length)
+        if ($relative -notmatch '\Adocs/images/widget-[a-z-]+\.png\z' -or
+            -not (Test-Path -LiteralPath (Join-Path $baseline $relative) -PathType Leaf)) { throw 'Gallery image missing from reviewed export.' }
+    }
+}
+
 function Assert-Rejected([string]$Folder, [string]$Expected) {
     $rejected = $false
     try { & (Join-Path $PSScriptRoot 'Verify-Source.ps1') -Root $Folder }
@@ -52,9 +68,14 @@ Copy-Item -LiteralPath $baseline -Destination $screenshotTamper -Recurse
 [IO.File]::AppendAllText((Join-Path $screenshotTamper 'docs/images/widget-reset-complete-zh.png'), 'tampered')
 Assert-Rejected $screenshotTamper 'Artwork fingerprint mismatch'
 
+$failureTamper = Join-Path $testRoot 'failure-preview-tamper'
+Copy-Item -LiteralPath $baseline -Destination $failureTamper -Recurse
+[IO.File]::AppendAllText((Join-Path $failureTamper 'docs/images/widget-unavailable-en.png'), 'tampered')
+Assert-Rejected $failureTamper 'Artwork fingerprint mismatch'
+
 $unknownScreenshot = Join-Path $testRoot 'unknown-screenshot'
 Copy-Item -LiteralPath $baseline -Destination $unknownScreenshot -Recurse
 Copy-Item -LiteralPath (Join-Path $unknownScreenshot 'docs/images/widget-reset-complete-zh.png') -Destination (Join-Path $unknownScreenshot 'docs/images/unreviewed.png')
 Assert-Rejected $unknownScreenshot 'Unexpected file'
 
-Write-Host 'PASS: 8 packaging checks (clean export, runtime exclusion, tamper, token, personal path, archive inventory, screenshot fingerprint, unreviewed image rejection).'
+Write-Host 'PASS: 10 packaging checks (clean export, bilingual gallery contract, runtime exclusion, tamper, token, personal path, archive inventory, screenshot fingerprint, failure-preview fingerprint, unreviewed image rejection).'
