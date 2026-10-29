@@ -6,7 +6,7 @@
 
 **2026.10.28.5 is an unreleased candidate.** It fixes first-reading reset false positives, unsafe optional-storage startup failures and canceled update handoffs. It adds .NET 10/LocalAppData migration, independent Tibo networking and minimal-mode preferences, push/PR CI and 12 bilingual state previews.
 
-691 local tests passed; audit, coverage and real-machine release gates remain outstanding. See the **[complete bilingual changelog](CHANGELOG.md)** for fixes, limitations and verification results.
+693 local tests passed; audit, coverage and real-machine release gates remain outstanding. See the **[complete bilingual changelog](CHANGELOG.md)** for fixes, limitations and verification results.
 
 **Right-click the widget's title bar or panel background for CLI connection, update repository, Tibo monitoring and minimal-mode settings.** Tibo monitoring is on for first-time use; automatic updating is still off by default. These are independent switches.
 

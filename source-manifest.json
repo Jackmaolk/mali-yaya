@@ -1,7 +1,7 @@
 {
     "schemaVersion":  1,
     "purpose":  "Reviewed source preview; not a production binary release",
-    "generatedAtUtc":  "2026-10-28T13:27:43.3023422+00:00",
+    "generatedAtUtc":  "2026-10-29T05:13:22.9915336+00:00",
     "files":  [
                   {
                       "path":  ".gitignore",
@@ -161,7 +161,7 @@
                   },
                   {
                       "path":  "README.github.md",
-                      "sha256":  "e3d5534b9c4e349034ce67cd35aaa85b7229e8aeab5938800ba8af4e98c032b2"
+                      "sha256":  "08b247f9870ecb6f4cc7584d60a12147f28efe7af28c7dec597116e57ece9e97"
                   },
                   {
                       "path":  "Assets/mali-yaya.png",
@@ -241,11 +241,11 @@
                   },
                   {
                       "path":  "README.en.md",
-                      "sha256":  "2a701dfb7b71aea692c5b2821578dd9aa6a7cba888d9b8d52ddd0c5508b442b8"
+                      "sha256":  "4ccaa8285b78bbb3e51a88b31d3eea4ec6ff239b9bc313df1fd33946015808e3"
                   },
                   {
                       "path":  "CHANGELOG.md",
-                      "sha256":  "bf6feb6f46e730be7cca0687bbd39eea2aef67e413f25639cbea8477b395ce2f"
+                      "sha256":  "35a14e00e2c64242d44f0ea1d35226c90a672156e3446608aff90e6c86efe68f"
                   },
                   {
                       "path":  "launcher/WidgetLauncher.cs",
@@ -333,7 +333,7 @@
                   },
                   {
                       "path":  "docs/UPGRADE-VERIFICATION.md",
-                      "sha256":  "8af8cc7ce6cd273bbd61c7b5bcc1eac573606f77f732a377de5f682f6bacb083"
+                      "sha256":  "5b7c5df76e921ab4726548999b851c62a431093b749e3fd182e82a4634eeba56"
                   },
                   {
                       "path":  "docs/RELEASE-ACCEPTANCE.md",
@@ -349,7 +349,7 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "e3d5534b9c4e349034ce67cd35aaa85b7229e8aeab5938800ba8af4e98c032b2"
+                      "sha256":  "08b247f9870ecb6f4cc7584d60a12147f28efe7af28c7dec597116e57ece9e97"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/CiContractTests.cs",
@@ -369,7 +369,7 @@
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/CountdownContinuityTests.cs",
-                      "sha256":  "620f1f3e9d7cbb6811fa1cb032f85472322a3f257c751ff1b276fdced51bd638"
+                      "sha256":  "8cd872b05f8571374007e00eaf15fe0d86898a8c7158e5b53d2b2f33179aa2f0"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/FiveHourCountdownPolicyTests.cs",

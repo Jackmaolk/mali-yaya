@@ -5,10 +5,11 @@
 - 首次启动默认开启 Tibo 自动监测：检查公开动态、核对作者与帖子，并按需获取中文机译。已有手动关闭选择不会被覆盖；损坏或不安全的设置仍停止联网。
 - 新增首次配置、已有目录缺失设置、保留关闭、空配置等回归测试；离线界面测试显式关闭联网，不依赖产品默认值。
 - 同步中英文使用说明和隐私说明。自动更新仍默认关闭，本次没有扩大 GitHub 更新权限。
+- 修复英文 CI 的倒计时测试语言假设：明确覆盖中文和英文，不再依赖测试机的显示语言；首次远端失败记录与复测结果分开记录。
 - 使用说明新增醒目的右键菜单入口提示及中英文完整菜单表，说明 CLI 识别/选择、连接信息、更新配置/状态、Tibo 开关和极简模式；区分只读状态行、面板按钮和独立联网开关。
 - 本机桌面启动失败已通过独立安装目录与用户级 .NET 10 运行库修复；未更改系统 .NET、全局代理或凭据。通用 ZIP 仍要求 .NET 10 Desktop Runtime x64，并非自包含包。
 
-本次完整自动化测试：691 通过，0 失败，0 跳过；候选包清单/哈希、禁止覆盖及版本不匹配检查全部通过。依赖漏洞数据仍不可用，不视为安全审计通过。
+本次完整自动化测试：693 通过，0 失败，0 跳过；候选包清单/哈希、禁止覆盖及版本不匹配检查全部通过。依赖漏洞数据仍不可用，不视为安全审计通过。
 
 First-run Tibo monitoring is now on. Saved opt-outs survive upgrades, malformed settings stay offline, and offline tests explicitly disable networking. Public-source delays and verification failures remain possible; this is not an official real-time X feed or a guaranteed reset prediction. This candidate is not a published stable release.
 

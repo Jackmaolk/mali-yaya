@@ -38,10 +38,19 @@ runtime and a versioned application directory, without changing system .NET 9.
 The generic candidate ZIP remains framework-dependent. This local deployment is
 not evidence of clean-machine or GitHub-hosted update acceptance.
 
+## Remote CI Follow-Up (2026-10-29)
+
+The first push/PR run passed source safety, launcher, runtime-contract and
+transitive-audit steps, but two countdown tests assumed Chinese UI on an English
+runner (689 passed, 2 failed). The tests now explicitly exercise zh-CN and en-US,
+checking the corresponding localized labels without changing product behavior or
+skipping either language. The expanded local suite has 693 tests. Remote full
+verification must be rerun on the follow-up commit.
+
 ## Executed Locally
 
 - .NET SDK 10.0.403, Windows Desktop/Core runtime 10.0.14.
-- Full .NET 10 tests: **691 passed, 0 failed, 0 skipped**.
+- Full .NET 10 tests: **693 passed, 0 failed, 0 skipped**.
 - Runtime configuration contract: **41 synthetic cases passed**.
 - Native portable launcher: **26 isolated cases passed**.
 - Icon validation: **9 sizes passed**, including embedded launcher icon.

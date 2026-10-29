@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Windows;
@@ -10,16 +11,19 @@ namespace CodexUsageWidget.Tests;
 [Collection("WpfPresentation")]
 public sealed class CountdownContinuityTests
 {
-    [Fact]
-    public void RestoredClockSurvivesMissingTimestampAndNoticeUntilAccountSuppliesNewTime()
+    [Theory]
+    [InlineData("zh-CN", "继续计时", "5小时重置")]
+    [InlineData("en-US", "Counting", "5h reset")]
+    public void RestoredClockSurvivesMissingTimestampAndNoticeUntilAccountSuppliesNewTime(
+        string culture, string countingTitle, string resetTitle)
     {
         InSta(() =>
         {
-            var window = new MainWindow();
+            var window = new MainWindow(CultureInfo.GetCultureInfo(culture));
             var now = DateTimeOffset.UtcNow;
             var originalEnd = now.AddHours(3).ToUnixTimeSeconds();
             Invoke(window, "RestoreCountdownCheckpoint", new CountdownCheckpoint(originalEnd, now.AddMinutes(-20)));
-            Assert.Equal("继续计时", Find<TextBlock>(window, "PetCountdownTitle").Text);
+            Assert.Equal(countingTitle, Find<TextBlock>(window, "PetCountdownTitle").Text);
             Assert.Equal(Visibility.Visible, Find<StackPanel>(window, "CountdownNumbers").Visibility);
 
             var coordinator = (TiboStatusCoordinator)Field(window, "_tiboStatus")!;
@@ -41,7 +45,7 @@ public sealed class CountdownContinuityTests
                 Primary = new RateLimitWindow { WindowDurationMins = 300, ResetsAt = nextEnd, UsedPercent = 0 }
             });
             Assert.Equal(nextEnd, ((RateLimitWindow)Field(window, "_countdownWindow")!).ResetsAt);
-            Assert.Equal("5小时重置", Find<TextBlock>(window, "PetCountdownTitle").Text);
+            Assert.Equal(resetTitle, Find<TextBlock>(window, "PetCountdownTitle").Text);
 
             Invoke(window, "ApplySnapshot", new RateLimitSnapshot
             {
@@ -52,18 +56,20 @@ public sealed class CountdownContinuityTests
         });
     }
 
-    [Fact]
-    public void ExpiredSavedClockKeepsZeroDigitsAndDoesNotInventAnotherFiveHours()
+    [Theory]
+    [InlineData("zh-CN", "到时待确认")]
+    [InlineData("en-US", "Verifying")]
+    public void ExpiredSavedClockKeepsZeroDigitsAndDoesNotInventAnotherFiveHours(string culture, string expiredTitle)
     {
         InSta(() =>
         {
-            var window = new MainWindow();
+            var window = new MainWindow(CultureInfo.GetCultureInfo(culture));
             var now = DateTimeOffset.UtcNow;
             var end = now.AddMinutes(-10).ToUnixTimeSeconds();
             Invoke(window, "RestoreCountdownCheckpoint", new CountdownCheckpoint(end, now.AddHours(-2)));
             Invoke(window, "UpdateResetLabels");
             Assert.Equal(Visibility.Visible, Find<StackPanel>(window, "CountdownNumbers").Visibility);
-            Assert.Equal("到时待确认", Find<TextBlock>(window, "PetCountdownTitle").Text);
+            Assert.Equal(expiredTitle, Find<TextBlock>(window, "PetCountdownTitle").Text);
             Assert.Equal("00", Find<FlipNumber>(window, "HoursFlip").Value);
             Assert.Equal("00", Find<FlipNumber>(window, "MinutesFlip").Value);
             Assert.Equal("00", Find<FlipNumber>(window, "SecondsFlip").Value);
