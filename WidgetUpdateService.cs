@@ -46,6 +46,7 @@ public sealed class WidgetUpdateService : IDisposable
     private readonly bool _ownsHttp;
     private readonly string _directory;
     private readonly string _statePath;
+    private readonly bool _storageUnavailable;
     private readonly TimeProvider _clock;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly CancellationTokenSource _lifetime = new();
@@ -54,9 +55,16 @@ public sealed class WidgetUpdateService : IDisposable
 
     public WidgetUpdateService(HttpClient? http = null, string? stateDirectory = null, TimeProvider? clock = null)
     {
-        _directory = Path.TrimEndingDirectorySeparator(Path.GetFullPath(stateDirectory ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CodexUsageWidget", "updates")));
-        _statePath = Path.Combine(_directory, "update-state.json");
+        try
+        {
+            _directory = WidgetDataPaths.LocalDirectory(stateDirectory ?? Path.Combine(WidgetDataPaths.Root, "updates"));
+            _statePath = Path.Combine(_directory, "update-state.json");
+        }
+        catch (Exception error) when (WidgetDataPaths.IsStorageError(error))
+        {
+            _directory = _statePath = string.Empty;
+            _storageUnavailable = true;
+        }
         _clock = clock ?? TimeProvider.System;
         _ownsHttp = http is null;
         _http = http ?? new HttpClient(new SocketsHttpHandler
@@ -70,7 +78,7 @@ public sealed class WidgetUpdateService : IDisposable
             ConnectTimeout = TimeSpan.FromSeconds(30),
             MaxResponseHeadersLength = 32
         }) { Timeout = Timeout.InfiniteTimeSpan };
-        if (TryReadState(out var saved)) _state = saved;
+        if (!_storageUnavailable && TryReadState(out var saved)) _state = saved;
         else _state = new(null, InvalidState);
     }
 
@@ -86,6 +94,7 @@ public sealed class WidgetUpdateService : IDisposable
             if (Volatile.Read(ref _disposed) != 0) { SetStatus(Failed); return null; }
             ArgumentNullException.ThrowIfNull(options);
             if (!options.Enabled) { SetStatus(Disabled); return null; }
+            if (_storageUnavailable) { SetStatus(InvalidState); return null; }
             var repository = options.Repository;
             if (repository is null || repository.Length > 110 || !RepositoryPattern.IsMatch(repository) || repository.EndsWith(".git", StringComparison.OrdinalIgnoreCase))
             { SetStatus(Unconfigured); return null; }
@@ -143,6 +152,11 @@ public sealed class WidgetUpdateService : IDisposable
                     entries["release-manifest.json"].Length, bounded).ConfigureAwait(false);
                 using var manifest = ParseJson(manifestBytes);
                 var hashes = ValidateManifest(manifest.RootElement, asset.Version);
+                using var runtimeStream = entries["CodexUsageWidget.runtimeconfig.json"].Open();
+                using var runtimeBytes = await CopyBoundedAsync(runtimeStream, ManifestLimit,
+                    entries["CodexUsageWidget.runtimeconfig.json"].Length, bounded).ConfigureAwait(false);
+                using var runtime = ParseJson(runtimeBytes);
+                ValidateRuntime(runtime.RootElement);
 
                 // The archive and manifest are verified before creating a new, unguessable payload directory.
                 var candidate = Path.Combine(_directory, "staged-" + Guid.NewGuid().ToString("N"));
@@ -377,7 +391,7 @@ public sealed class WidgetUpdateService : IDisposable
         RequireObject(root);
         if (root.EnumerateObject().Count() != 5 || root.GetProperty("product").GetString() != "mali-yaya" ||
             root.GetProperty("version").GetString() != version || root.GetProperty("platform").GetString() != "win-x64" ||
-            !root.GetProperty("runtimeMajor").TryGetInt32(out var major) || major != 9) throw new InvalidDataException();
+            !root.GetProperty("runtimeMajor").TryGetInt32(out var major) || major != 10) throw new InvalidDataException();
         var files = root.GetProperty("files");
         RequireObject(files);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -389,6 +403,33 @@ public sealed class WidgetUpdateService : IDisposable
         }
         if (hashes.Count != 4) throw new InvalidDataException();
         return hashes;
+    }
+
+    private static void ValidateRuntime(JsonElement root)
+    {
+        RequireObject(root);
+        var options = root.GetProperty("runtimeOptions");
+        RequireObject(options);
+        if (options.GetProperty("tfm").GetString() != "net10.0" ||
+            options.TryGetProperty("framework", out _) || options.TryGetProperty("includedFrameworks", out _) ||
+            options.TryGetProperty("additionalProbingPaths", out _) || options.TryGetProperty("rollForwardOnNoCandidateFx", out _))
+            throw new InvalidDataException();
+        if (options.TryGetProperty("rollForward", out var roll) &&
+            roll.GetString() is not ("Disable" or "LatestPatch" or "Minor" or "LatestMinor")) throw new InvalidDataException();
+        if (options.TryGetProperty("configProperties", out var properties)) RequireObject(properties);
+        var frameworks = options.GetProperty("frameworks");
+        if (frameworks.ValueKind != JsonValueKind.Array || frameworks.GetArrayLength() != 2) throw new InvalidDataException();
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var framework in frameworks.EnumerateArray())
+        {
+            RequireObject(framework);
+            var name = framework.GetProperty("name").GetString();
+            var version = framework.GetProperty("version").GetString();
+            if (framework.EnumerateObject().Count() != 2 || name is not ("Microsoft.NETCore.App" or "Microsoft.WindowsDesktop.App") ||
+                !names.Add(name) || version is null ||
+                !Regex.IsMatch(version, @"\A10\.0\.(0|[1-9][0-9]*)\z", RegexOptions.CultureInvariant | RegexOptions.NonBacktracking) ||
+                !Version.TryParse(version, out _)) throw new InvalidDataException();
+        }
     }
 
     private static async Task<long> CopyEntryAsync(Stream input, Stream output, long expected,

@@ -2,11 +2,11 @@
 
 ## 默认边界
 
-默认关闭、仓库为空。仅接受明确配置的 Jackmaolk/具体仓库；不会连接参考项目或根据个人主页猜测仓库。2026-10-28 已核实 Jackmaolk/mali-yaya 公开可读，并已上传审查后的源码；尚未发布真实 Release。源码上传与公开二进制发行是不同事项，本版不保存 GitHub Token，仓库公开不会自动打开本机组件的更新开关。
+默认关闭、仓库为空。仅接受明确配置的 Jackmaolk/具体仓库；不会连接参考项目或根据个人主页猜测仓库。2026-10-28 已核实 Jackmaolk/mali-yaya 公开可读，并已上传审查后的源码；旧 .NET 9 测试 Release 已发布，本次 .NET 10 稳定版仍待审查验收。源码上传与公开二进制发行是不同事项，本版不保存 GitHub Token，仓库公开不会自动打开本机组件的更新开关。
 
 ## 发布协议
 
-版本使用 YYYY.MM.DD.revision，例如 2026.10.28.3；正式 tag 必须为 v2026.10.28.3，ZIP 必须为 mali-yaya-2026.10.28.3-windows-x64.zip。不接受 prerelease 或 draft。版本须高于正在运行的版本，比较数字而非字符串。
+版本使用 YYYY.MM.DD.revision，例如 2026.10.28.5；正式 tag 必须为 v2026.10.28.5，ZIP 必须为 mali-yaya-2026.10.28.5-windows-x64.zip。不接受 prerelease 或 draft。版本须高于正在运行的版本，比较数字而非字符串。
 
 资产必须在 GitHub Release API 中提供 sha256: 后接 64 位十六进制 digest；缺失、名称不符、重复资产、非法跳转、长度不符或哈希不符都拒绝，不使用旁边随意提供的文本文件代替 GitHub 摘要。
 
@@ -18,7 +18,7 @@ ZIP 只含以下根级文件，禁止子目录、链接和额外内容：
 - CodexUsageWidget.runtimeconfig.json
 - release-manifest.json
 
-清单结构为 product=mali-yaya、version=目标版本、platform=win-x64、runtimeMajor=9，files 为上述四个运行文件名到 SHA256 字符串的对象。源码 ZIP、PDB、截图、状态、旧素材和脚本不能用作自动更新包。
+清单结构为 product=mali-yaya、version=目标版本、platform=win-x64、runtimeMajor=10，files 为上述四个运行文件名到 SHA256 字符串的对象。源码 ZIP、PDB、截图、状态、旧素材和脚本不能用作自动更新包。
 
 ## 生成运行包
 
@@ -47,3 +47,13 @@ powershell.exe -NoProfile -File scripts/Prepare-Release.ps1 -PublishPath bin/rev
 - [参考项目及其说明](https://github.com/JiaYang-BUAA/Codex-Desktop-Usage-Monitor-Windows)
 
 未复制参考项目代码。本轮测试采用离线 HTTP/ZIP 夹具及文件事务测试；没有真实仓库/Release 时，不宣称联网热更新验收通过。
+
+## .NET 10 迁移边界
+
+本版仅接收 runtimeMajor=10 且 runtimeconfig 的 net10.0、Microsoft.NETCore.App 与 Microsoft.WindowsDesktop.App 均为稳定 10.0.x 的包；拒绝跨主版本 roll-forward 和不相符框架。旧 .NET 9 更新器会拒绝新包，不能热升级跨越运行库主版本。先安装官方 .NET 10 Desktop Runtime x64，正常关闭旧组件，手动完整解压新包；不重启电脑或 Codex。
+
+就绪记录迁移到 LocalAppData 的安装目录哈希命名空间，仅包含构建/PID/时间等最小字段，账户额度不作为程序就绪条件。更新事务/备份仍针对本组件四个运行文件；只读安装目录无法自动替换，不自动提权。
+
+正式发行必须先经 PR 审查合入 main，自动 CI 和实机验收完成后由维护者批准。手动 Release 工作流只建立草稿，不会因 push/PR 自动公开发布。见 [实机验收](RELEASE-ACCEPTANCE.md)。
+
+助手 ready 只表示已就绪，不是安装许可；界面再次核对当前开关、版本会话与取消状态后，才提交一次性许可并正常退出。交接前取消、超时或放弃不会留下许可，助手检测撤销后退出，不会等用户稍后关闭时再替换程序。提交后的正常退出是更新的一部分，不作撤销。该协议已用合成许可状态测试覆盖，真实多进程/磁盘故障仍需验收。

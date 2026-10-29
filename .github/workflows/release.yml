@@ -1,0 +1,128 @@
+name: Prepare reviewed release candidate
+
+# No push/tag/release trigger: publishing a stable release is a separate human action.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact merged BuildVersion (YYYY.MM.DD.revision, without v)
+        required: true
+        type: string
+      real_acceptance_completed:
+        description: All RELEASE-ACCEPTANCE gates passed for this exact main SHA
+        required: true
+        default: false
+        type: boolean
+      acceptance_evidence:
+        description: Same-repository issue URL recording acceptance and reviewer sign-off
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-candidate
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main' && inputs.real_acceptance_completed == true
+    uses: ./.github/workflows/verify.yml
+    permissions:
+      contents: read
+
+  draft:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && inputs.real_acceptance_completed == true
+    runs-on: windows-2025
+    timeout-minutes: 25
+    # Configure required reviewers, prevent self-review/admin bypass, and main-only
+    # deployment branches before use. See docs/RELEASE-ACCEPTANCE.md.
+    environment: release-candidate
+    permissions:
+      contents: write
+      actions: read
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      ACCEPTANCE_EVIDENCE: ${{ inputs.acceptance_evidence }}
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+      - name: Validate immutable source and acceptance inputs
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RELEASE_VERSION -cnotmatch '\A[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{1,4}\z') { throw 'Invalid release version.' }
+          $issuePrefix = 'https://github.com/' + $env:GITHUB_REPOSITORY + '/issues/'
+          if ($env:ACCEPTANCE_EVIDENCE -cnotmatch ('\A' + [regex]::Escape($issuePrefix) + '[1-9][0-9]*\z')) { throw 'Expected same-repository acceptance issue URL.' }
+          $head = git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0 -or $head -cne $env:GITHUB_SHA) { throw 'Checkout does not match dispatch SHA.' }
+          $source = [IO.File]::ReadAllText((Join-Path $PWD 'WidgetRuntimeStatus.cs'))
+          $matches = [regex]::Matches($source, 'BuildVersion = "([0-9.]+)"')
+          if ($matches.Count -ne 1 -or $matches[0].Groups[1].Value -cne $env:RELEASE_VERSION) { throw 'Version must exactly match merged BuildVersion.' }
+      - name: Rebuild reviewed candidate with strict audit
+        run: |
+          dotnet restore tests/CodexUsageWidget.Tests/CodexUsageWidget.Tests.csproj -p:ContinuousIntegrationBuild=true -p:NuGetAudit=true -p:NuGetAuditMode=all
+          if ($LASTEXITCODE -ne 0) { throw 'Audited restore failed.' }
+          dotnet test tests/CodexUsageWidget.Tests/CodexUsageWidget.Tests.csproj -c Release --no-restore --nologo -p:ContinuousIntegrationBuild=true
+          if ($LASTEXITCODE -ne 0) { throw 'Full tests failed.' }
+          dotnet publish CodexUsageWidget.csproj -c Release -r win-x64 --self-contained false -p:UseAppHost=false -p:ContinuousIntegrationBuild=true -o bin/release-build
+          if ($LASTEXITCODE -ne 0) { throw 'Publish build failed.' }
+          ./scripts/Test-RuntimeContract.ps1
+          ./scripts/Test-Diagnostics.ps1 -PublishPath bin/release-build
+          $csc = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
+          $icon = Join-Path $PWD.Path 'Assets\mali-yaya.ico'
+          $launcherSource = Join-Path $PWD.Path 'launcher\WidgetLauncher.cs'
+          $launcher = Join-Path $PWD.Path 'bin\release-build\CodexUsageWidget.exe'
+          & $csc /nologo /codepage:65001 /target:winexe /platform:x64 /reference:System.Windows.Forms.dll /win32icon:$icon /out:$launcher $launcherSource
+          if ($LASTEXITCODE -ne 0) { throw 'Launcher build failed.' }
+          ./scripts/Test-Icon.ps1 -Launcher $launcher
+          ./scripts/Test-ReleasePackage.ps1 -PublishPath bin/release-build -Version $env:RELEASE_VERSION
+          $asset = 'mali-yaya-' + $env:RELEASE_VERSION + '-windows-x64'
+          ./scripts/Prepare-Release.ps1 -PublishPath bin/release-build -OutputDirectory (Join-Path $PWD ('bin/release-candidate/' + $asset)) -Version $env:RELEASE_VERSION
+          $archive = Join-Path $PWD ('bin/release-candidate/' + $asset + '.zip')
+          $checksum = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $asset + '.zip'
+          [IO.File]::WriteAllText((Join-Path (Split-Path $archive) 'SHA256SUMS.txt'), ($checksum + "`n"), (New-Object Text.UTF8Encoding($false)))
+      - name: Require successful main CI and create draft only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Referencing an unconfigured environment alone does not require approval.
+          $protectionJson = gh api "repos/$env:GITHUB_REPOSITORY/environments/release-candidate"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot verify required release reviewers.' }
+          $protection = $protectionJson | ConvertFrom-Json
+          $reviewers = @($protection.protection_rules | Where-Object { $_.type -ceq 'required_reviewers' })
+          if ($reviewers.Count -ne 1 -or @($reviewers[0].reviewers).Count -eq 0 -or $reviewers[0].prevent_self_review -ne $true) {
+            throw 'Release environment must have independent required reviewers and prevent self-review.'
+          }
+          # Fail closed if main advanced during approval/build; never tag a feature branch.
+          $main = gh api "repos/$env:GITHUB_REPOSITORY/commits/main" --jq '.sha'
+          if ($LASTEXITCODE -ne 0 -or $main -cne $env:GITHUB_SHA) { throw 'Dispatch SHA is no longer main HEAD.' }
+          $endpoint = "repos/$env:GITHUB_REPOSITORY/actions/workflows/verify.yml/runs?head_sha=$env:GITHUB_SHA&branch=main&event=push&status=success&per_page=100"
+          $json = gh api $endpoint
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot verify main CI gates.' }
+          $runs = ($json | ConvertFrom-Json).workflow_runs
+          $passed = @($runs | Where-Object { $_.head_sha -ceq $env:GITHUB_SHA -and $_.head_branch -ceq 'main' -and $_.event -ceq 'push' -and $_.conclusion -ceq 'success' })
+          if ($passed.Count -eq 0) { throw 'Exact main SHA requires a successful push verification run.' }
+          $tag = 'v' + $env:RELEASE_VERSION
+          $refs = gh api "repos/$env:GITHUB_REPOSITORY/git/matching-refs/tags/$tag"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect candidate tag.' }
+          if (@(($refs | ConvertFrom-Json) | Where-Object { $_.ref -ceq ('refs/tags/' + $tag) }).Count) { throw 'Tag already exists; never replace or reuse it.' }
+          $asset = 'mali-yaya-' + $env:RELEASE_VERSION + '-windows-x64.zip'
+          $archive = Join-Path $PWD ('bin/release-candidate/' + $asset)
+          $sums = Join-Path (Split-Path $archive) 'SHA256SUMS.txt'
+          $notes = Join-Path (Split-Path $archive) 'candidate-notes.md'
+          [IO.File]::WriteAllText($notes, ("REVIEW CANDIDATE ONLY. Not a published stable release.`nSource: " + $env:GITHUB_SHA + "`nAcceptance: " + $env:ACCEPTANCE_EVIDENCE + "`nCheck SHA256SUMS.txt; perform final human publication review.`n"))
+          gh release create $tag $archive $sums --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title ("Mali Yaya " + $env:RELEASE_VERSION + ' candidate') --notes-file $notes --draft --prerelease --latest=false
+          if ($LASTEXITCODE -ne 0) { throw 'Draft creation failed; inspect any partial draft manually. Never auto-publish or overwrite.' }

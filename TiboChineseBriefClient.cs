@@ -25,7 +25,7 @@ public sealed class TiboChineseBriefClient : IDisposable
     private static readonly Regex WhitespacePattern = new(@"\s+", RegexOptions.CultureInvariant);
     private readonly HttpClient _client;
     private readonly bool _ownsClient;
-    private readonly string _cacheDirectory;
+    private readonly string? _cacheDirectory;
     private readonly TimeProvider _timeProvider;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly Dictionary<string, CacheEntry> _cache = [];
@@ -35,12 +35,16 @@ public sealed class TiboChineseBriefClient : IDisposable
         TimeProvider? timeProvider = null)
     {
         _ownsClient = client is null;
-        _client = client ?? new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
+        _client = client ?? new HttpClient(new HttpClientHandler
+        {
+            AllowAutoRedirect = false, UseCookies = false, UseDefaultCredentials = false,
+            Credentials = null, DefaultProxyCredentials = null
+        })
         {
             Timeout = TimeSpan.FromSeconds(10),
             MaxResponseContentBufferSize = 1024 * 1024
         };
-        _cacheDirectory = cacheDirectory ?? AppContext.BaseDirectory;
+        _cacheDirectory = cacheDirectory;
         _timeProvider = timeProvider ?? TimeProvider.System;
         LoadCache();
     }
@@ -184,9 +188,8 @@ public sealed class TiboChineseBriefClient : IDisposable
     {
         try
         {
-            using var stream = File.OpenRead(Path.Combine(_cacheDirectory, "tibo-chinese-cache.json"));
-            if (stream.Length > MaxCacheBytes) return;
-            var entries = JsonSerializer.Deserialize<List<CacheEntry?>>(stream);
+            var entries = JsonSerializer.Deserialize<List<CacheEntry?>>(
+                WidgetDataPaths.ReadBytes(CachePath, (int)MaxCacheBytes));
             if (entries is null) return;
             var now = _timeProvider.GetUtcNow();
             foreach (var entry in entries)
@@ -207,32 +210,20 @@ public sealed class TiboChineseBriefClient : IDisposable
 
     private void SaveCache()
     {
-        string? temporaryPath = null;
         try
         {
-            Directory.CreateDirectory(_cacheDirectory);
-            var cachePath = Path.Combine(_cacheDirectory, "tibo-chinese-cache.json");
-            temporaryPath = cachePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
-            using (var stream = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-                JsonSerializer.Serialize(stream, _cache.Values.Where(entry => entry.Brief is not null).ToArray());
-            File.Move(temporaryPath, cachePath, overwrite: true);
+            WidgetDataPaths.WriteJsonAtomic(CachePath, _cache.Values.Where(entry => entry.Brief is not null).ToArray());
         }
         catch (Exception ex) when (CacheError(ex))
         {
             // Keep the validated network result even when the cache is not writable.
         }
-        finally
-        {
-            if (temporaryPath is not null)
-            {
-                try { File.Delete(temporaryPath); }
-                catch (Exception ex) when (CacheError(ex)) { }
-            }
-        }
     }
 
+    private string CachePath => Path.Combine(_cacheDirectory ?? WidgetDataPaths.CacheDirectory, "tibo-chinese-cache.json");
+
     private static bool CacheError(Exception ex) =>
-        ex is IOException or UnauthorizedAccessException or JsonException or ArgumentException or
+        ex is IOException or InvalidDataException or UnauthorizedAccessException or JsonException or ArgumentException or
             NotSupportedException or SecurityException;
 
     private sealed record CacheEntry(string Key, TiboChineseBrief? Brief, DateTimeOffset StoredAt,

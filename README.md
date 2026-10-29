@@ -2,9 +2,17 @@
 
 [English](README.en.md)
 
+## 本次更新了什么
+
+**2026.10.28.5 候选变更，尚未正式发布。** 修复首次周额度 100% 误报重置、设置异常启动失败和取消更新后助手仍可能安装的问题；迁移 .NET 10 与 LocalAppData；新增独立 Tibo 联网开关、极简模式、push/PR CI 和 12 张中英文状态预览。
+
+本地 691 项测试通过，但漏洞审计、覆盖率与实机发行验收仍有未通过项目。详见 **[完整中英文更新日志](CHANGELOG.md)**，不要将候选更新当成已发布稳定版。
+
+**有右键菜单：在小组件标题栏或面板背景处单击鼠标右键，即可设置 CLI 连接、更新仓库、Tibo 联网监测和极简模式。** Tibo 首次使用默认开启；自动更新仍默认关闭，二者是独立开关。
+
 > Windows 桌面上的 Codex 重置情报助手：关注 Tibo 发文、查看北京时间预告、确认本账户重置，再用原创小宠物庆祝。
 
-非 OpenAI 官方产品，无隶属、赞助或背书关系。当前版本为 **2026.10.28.3 源码预览版**，不是已完成商用签名、安装和真实自动升级验收的正式安装包。项目仓库：[Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya)。没有正式 Release 时，不表示已经提供可供普通用户下载的安装程序。源码可见不等于已授予开源或商用许可，见 [权利说明](RIGHTS.md)。
+非 OpenAI 官方产品，无隶属、赞助或背书关系。当前功能分支为 **2026.10.28.5 / .NET 10 候选版**，不是已完成商用签名、安装和真实自动升级验收的正式安装包。项目仓库：[Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya)。没有正式 Release 时，不表示已经提供可供普通用户下载的安装程序。源码可见不等于已授予开源或商用许可，见 [权利说明](RIGHTS.md)。
 
 ## 运行截图
 
@@ -17,6 +25,19 @@
 [查看原图](docs/images/widget-reset-complete-zh.png) · [反馈建议或报告问题](https://github.com/Jackmaolk/mali-yaya/issues/new)
 
 反馈时请说明软件版本、Windows 版本、屏幕缩放比例、复现步骤及期望效果。截图只保留必要区域，先遮住邮箱、用户名、私密对话、路径或凭据；不要上传 auth.json、Token、完整运行日志或个人账户状态文件。
+
+## 中英文多状态预览（12 张）
+
+以下由真实 WPF 界面加载合成测试数据离线渲染，不是实时账户截图或当前有效预告；每张均带模拟数据标记。生成过程不请求账号或网络。上方用户授权的真实截图单独保留。
+
+| 状态 / State | 中文 | English |
+| --- | --- | --- |
+| 正常额度 / Normal usage | <img src="docs/images/widget-normal-zh.png" alt="正常额度 / Normal usage 中文模拟预览" width="250" /> | <img src="docs/images/widget-normal-en.png" alt="正常额度 / Normal usage English synthetic preview" width="250" /> |
+| 预告重置 / Reset announced | <img src="docs/images/widget-planned-zh.png" alt="预告重置 / Reset announced 中文模拟预览" width="250" /> | <img src="docs/images/widget-planned-en.png" alt="预告重置 / Reset announced English synthetic preview" width="250" /> |
+| 已确认重置 / Account reset confirmed | <img src="docs/images/widget-confirmed-zh.png" alt="已确认重置 / Account reset confirmed 中文模拟预览" width="250" /> | <img src="docs/images/widget-confirmed-en.png" alt="已确认重置 / Account reset confirmed English synthetic preview" width="250" /> |
+| 额度偏低 / Low quota | <img src="docs/images/widget-low-zh.png" alt="额度偏低 / Low quota 中文模拟预览" width="250" /> | <img src="docs/images/widget-low-en.png" alt="额度偏低 / Low quota English synthetic preview" width="250" /> |
+| 极简模式 / Minimal mode | <img src="docs/images/widget-minimal-zh.png" alt="极简模式 / Minimal mode 中文模拟预览" width="250" /> | <img src="docs/images/widget-minimal-en.png" alt="极简模式 / Minimal mode English synthetic preview" width="250" /> |
+| Tibo 联网关闭 / Tibo networking off | <img src="docs/images/widget-offline-zh.png" alt="Tibo 联网关闭 / Tibo networking off 中文模拟预览" width="250" /> | <img src="docs/images/widget-offline-en.png" alt="Tibo 联网关闭 / Tibo networking off English synthetic preview" width="250" /> |
 
 ## 先看这三点
 
@@ -39,7 +60,7 @@
 | 翻页倒计时 | 根据账户 resetsAt 每秒本地计算；刷新失败继续已有计时，到零等待账户的新周期，不自行补五小时。 |
 | 随机重置 | 显示账户返回的次数与有效期，不虚构、不自动消耗机会。 |
 | Tibo 快报（重点） | 核对限定作者的公开帖子，区分有效预告、最近动态、赠送机会消息和本账户已确认重置，显示英文与中文机译概要。 |
-| 重置完成提醒 | 新鲜周额度达到 100% 或可信新周期证据满足规则时更新面板，并触发角色庆祝；不是只等到预告时间再猜。 |
+| 重置完成提醒 | 在已有基线后观测到周额度恢复，或可信新周期证据满足规则时更新面板，并触发角色庆祝；不是只等到预告时间再猜。 |
 | 原创角色 | 根据额度、预告、赠送和已重置状态变化；支持点击互动和系统减少动画设置。 |
 | 桌面操作 | 拖动、折叠、关闭、手动刷新，可选当前用户开机启动；其他窗口可覆盖组件。 |
 | 自动更新 | 默认关闭、更新源为空；开启且配置正确后每 24 小时最多尝试一次正式 Release，校验 ZIP 后仅切换本组件。 |
@@ -50,8 +71,8 @@
 
 ### 1.1 准备环境
 
-- Windows x64。本地测试环境为 Windows 10；其他系统/多屏仍需单独验收。
-- 当前版本需要 .NET 9 Desktop Runtime，开发需要 .NET 9 SDK。此依赖接近支持期结束，正式公开发行前须迁移受支持的 LTS，并使用安全补丁版本。
+- 支持 .NET 10 且已安装当前安全补丁的 Windows x64；多屏与真实英文系统仍需实机验收。旧 Windows 可能缺少 CET 支持，请勿通过关闭安全保护绕过。
+- 候选版需要 [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)，开发需要 .NET 10 SDK；普通 .NET Runtime 或仅 ASP.NET Runtime 不够。旧 .NET 9 测试版不能自动跨主版本升级，须先安装 .NET 10 Desktop Runtime，再手动解压新包。
 - 安装并登录你自己的 Codex CLI，或使用可访问的 Desktop/IDE 自带 CLI。仅在浏览器登录不保证 CLI 已登录；API Key 登录不等于 ChatGPT 套餐额度。
 - 不需要向组件填写 OpenAI Token、密码或复制 auth.json。不要关闭杀毒软件；若被拦截，先核对来源、校验值与签名状况。
 
@@ -69,17 +90,42 @@
 
 ### 1.3 下载与启动
 
-正式下载入口尚未发布。未来只从本项目所有者确认的正式 Release 下载 mali-yaya-版本-windows-x64.zip，不下载参考项目的同名工具当作本组件更新。
+[GitHub Releases](https://github.com/Jackmaolk/mali-yaya/releases) 提供既有 .NET 9 预览包；本次 .NET 10 候选版在 PR 审查和验收完成前不冒充正式版。请只从本仓库下载名称严格匹配的 ZIP，核对 SHA256SUMS.txt 与 GitHub 资产摘要。
 
 1. 完整解压 ZIP 到可写的本机文件夹，保留 EXE、DLL、两个运行配置 JSON 和 release-manifest.json。
 2. 双击 CodexUsageWidget.exe；不需要命令窗口常驻，但正常运行仍有后台进程。
 3. 第一次读取失败时，右键组件选择“查看 Codex 连接信息”，检查来源、版本和登录。
 
-已有用户原桌面“码力叮当.exe”入口保留兼容；新界面名为码力芽芽。关闭后可再次双击入口，无需重启电脑或 Codex。
+旧版桌面入口可保留兼容；当前产品名统一为码力芽芽 / Mali Yaya。关闭后可再次双击入口，无需重启电脑或 Codex。
 
 ### 1.4 CLI 自动识别
 
 优先使用明确保存的路径，其次检查可信已知位置中的原生 CLI。支持已知 npm、独立版及可访问的 Desktop/IDE 安装。右键可“重新自动识别 Codex CLI”或“手动选择 Codex CLI”。不执行 .cmd/.ps1 shim，不扫描全盘，不自动安装或登录。[详细范围](docs/AUTO-DISCOVERY.md)。
+
+## 右键菜单
+
+在**小组件标题栏或面板背景处单击鼠标右键**打开菜单，不是在桌面 EXE 或快捷方式上右键。菜单随 Windows 显示语言显示中文或英文。
+
+| 菜单项 | 功能与注意事项 |
+| --- | --- |
+| 重新自动识别 Codex CLI | 清除手动指定的 CLI 路径，重新检查可信已知安装位置并尝试连接；不扫描全盘、不自动安装或登录。 |
+| 手动选择 Codex CLI… | 选择可信、架构兼容的原生 CLI `.exe`，不是桌面主程序、快捷方式或 `.cmd` / `.ps1` 脚本；保存后尝试连接。 |
+| 查看 Codex 连接信息 | 查看当前 CLI 来源、版本和路径；尚未识别时显示相关提示，不展示或导出凭据。 |
+| 自动更新（每 24 小时检查） | 勾选开启、取消勾选关闭；默认关闭。必须先配置本软件的具体更新仓库，开启后每 24 小时最多尝试一次，包括失败的尝试。 |
+| 配置本软件的更新仓库… | 填写 `Jackmaolk/mali-yaya` 这样的具体仓库名，不填个人主页或 Token；保存后保持自动更新关闭，需要再手动勾选开启。 |
+| 查看更新状态 | 显示当前版本、配置的仓库、更新开关和最近状态；这是信息窗口，不是绕过 24 小时间隔的“立即更新”按钮。 |
+| Tibo 联网监测（含翻译） | 勾选开启公开动态查询、帖文核对及按需机译；首次使用默认开启。取消勾选会停止这部分联网，不停止账户额度刷新和本地倒计时。 |
+| 极简模式 | 勾选后收起快报、建议及辅助行，保留主要额度、芽芽和倒计时；取消勾选恢复完整面板，不改变 Tibo 联网开关。 |
+
+菜单还包含一行不可点击的更新状态提示，其文字会随更新状态变化。Tibo 和极简模式分别保存，下次启动继续使用已保存的选择；升级不会覆盖主动关闭 Tibo 的选择。
+
+**刷新、折叠和退出不是右键菜单项**，请使用面板顶部对应按钮；开机启动使用面板底部复选框。折叠或极简模式不等于停止后台监测。
+
+## 联网开关与极简模式
+
+右键 → **Tibo 联网监测（含翻译）**：首次安装默认开启，启动后自动检查公开动态并核对帖文、按需机译；已保存的手动关闭选择不会被升级覆盖，配置损坏或不安全时停止联网；关闭会取消在途请求及重试、拒绝迟到结果，不影响账户额度和五小时倒计时。已发送的请求无法撤回，关闭也不能删除第三方服务器记录。
+
+右键 → **极简模式**：只显示主要额度、芽芽和倒计时，收起快报、建议与辅助行；联网开关独立保存。极简不是断网，折叠也不是关闭联网。
 
 ## 2. 日常使用
 
@@ -123,7 +169,7 @@
 
 ### 3.3 怎样确认“已经重置”
 
-新鲜的周额度读数为剩余 **100%** 时，当前产品规则立即显示重置完成，不继续停留在“核对中”。如果程序错过 100% 的瞬间、读取时已消耗了一些额度，还会结合周周期终点推进、使用率下降、可信新周期起点等证据判断；不是看到 95% 就一律宣告重置。
+**首次读取仅建立基线，哪怕周额度为 100% 也不宣告“刚完成重置”。** 有有效窗口元数据且先前已消耗的额度恢复到 100% 时，立即确认一次恢复；若错过 100% 的瞬间，还须观测到同类周窗口的终点推进、使用率下降且新周期起点在最近 6 小时内。窗口倒退、周期类型改变、缺失时间或仅有帖子预告都不确认。95% 本身不是重置证据。
 
 同一周期不会因重复刷新一直重播庆祝。周额度回满只能确认账户当前额度状态，不能证明一定由某条 Tibo 帖子造成，也不能代替检查五小时/特定模型限制。重置机会、实际额度和 Credits 是不同字段；未上报不等于零次。
 
@@ -177,7 +223,7 @@ GitHub 摘要用于完整性核验，不是独立作者签名，不能抵御发�
 
 ### 4.3 本地状态
 
-更新设置及每次尝试时间保存在 %LOCALAPPDATA%/CodexUsageWidget 下，不保存凭据。旧版的账户运行状态与机译缓存仍位于程序目录，因此目前应解压到可写目录；通用安装/卸载和状态迁移仍待完善。更新备份和暂存包不上传源码仓库。
+运行状态、偏好、CLI 路径设置、更新缓存和公开机译缓存统一保存在 `%LOCALAPPDATA%/CodexUsageWidget`；每个安装目录使用独立哈希命名空间，健康就绪记录不含额度或译文。旧目录的个人状态与倒计时不自动导入，以免串用不同账户；旧文件保留不删除。新启动先读取官方账户数据，单次运行内断网仍继续可靠倒计时。安装目录只有更新运行文件时需要可写；不自动提权。
 
 ## 5. 开发与验证
 
@@ -191,7 +237,7 @@ dotnet publish CodexUsageWidget.csproj -c Release --self-contained false -p:UseA
 powershell.exe -NoProfile -File scripts/Test-Diagnostics.ps1 -PublishPath bin/review-build
 ~~~
 
-测试使用隔离夹具，不代表真实账户或真实 GitHub Release 已端到端通过。build.ps1 是个人布局构建脚本，不是通用安装器；默认不写桌面，只有明确传入 -InstallDesktop 才调用桌面入口安装器。源码导出使用 scripts/Prepare-Source.ps1，白名单排除运行状态、凭据、旧素材、运行二进制和个人 README。图片只允许两份哈希固定的原创图标，以及所有者明确授权、单独审核并固定哈希的一张运行截图；其他截图仍排除。
+测试使用隔离夹具，不代表真实账户或真实 GitHub Release 已端到端通过。build.ps1 是个人布局构建脚本，不是通用安装器；默认不写桌面，只有明确传入 -InstallDesktop 才调用桌面入口安装器。源码导出使用 scripts/Prepare-Source.ps1，白名单排除运行状态、凭据、旧素材、运行二进制和个人 README。图片采用逐文件、固定哈希白名单；只包括原创图标、已授权真实截图与本次明确标注模拟数据的中英文界面预览，不放开任意 PNG。
 
 ## 6. 安全与隐私
 

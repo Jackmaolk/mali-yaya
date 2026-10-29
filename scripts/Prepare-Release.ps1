@@ -6,6 +6,8 @@ param(
 $ErrorActionPreference = 'Stop'
 if ($Version -notmatch '\A[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{1,4}\z') { throw 'Expected YYYY.MM.DD.revision version.' }
 $source = [IO.Path]::GetFullPath($PublishPath)
+. (Join-Path $PSScriptRoot 'Assert-RuntimeContract.ps1')
+Assert-WidgetRuntimeContract (Join-Path $source 'CodexUsageWidget.runtimeconfig.json')
 $destination = [IO.Path]::GetFullPath($OutputDirectory)
 if (Test-Path -LiteralPath $destination) { throw 'Output directory must be new.' }
 $names = @('CodexUsageWidget.dll', 'CodexUsageWidget.exe', 'CodexUsageWidget.deps.json', 'CodexUsageWidget.runtimeconfig.json')
@@ -36,7 +38,7 @@ try {
     $report = $stdout.GetAwaiter().GetResult() | ConvertFrom-Json
     [void]$stderr.GetAwaiter().GetResult()
     if ($process.ExitCode -ne 0 -or $report.product -ne 'mali-yaya' -or $report.version -ne $Version -or
-        $report.platform -ne 'win-x64' -or $report.runtimeMajor -ne 9) { throw 'Build identity/version mismatch.' }
+        $report.platform -ne 'win-x64' -or $report.runtimeMajor -ne 10) { throw 'Build identity/version mismatch.' }
 }
 finally { $process.Dispose() }
 $parent = Split-Path -Parent $destination
@@ -52,7 +54,7 @@ foreach ($name in $names) {
     Copy-Item -LiteralPath (Join-Path $source $name) -Destination $target
     $hashes[$name] = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
 }
-$manifest = [ordered]@{ product = 'mali-yaya'; version = $Version; platform = 'win-x64'; runtimeMajor = 9; files = $hashes }
+$manifest = [ordered]@{ product = 'mali-yaya'; version = $Version; platform = 'win-x64'; runtimeMajor = 10; files = $hashes }
 [IO.File]::WriteAllText((Join-Path $destination 'release-manifest.json'), ($manifest | ConvertTo-Json -Depth 4), (New-Object Text.UTF8Encoding($false)))
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [IO.Compression.ZipFile]::CreateFromDirectory($destination, $zip)

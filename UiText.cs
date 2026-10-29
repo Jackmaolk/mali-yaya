@@ -19,6 +19,11 @@ public sealed class UiText
         new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["码力芽芽"] = "Mali Yaya",
+            ["Tibo 联网监测（含翻译）"] = "Tibo online monitoring (with translation)",
+            ["极简模式"] = "Minimal mode",
+            ["Tibo 联网已关闭"] = "Tibo networking off",
+            ["右键开启动态监测；额度和倒计时照常刷新。"] = "Enable news via right-click. Quota and countdown keep refreshing.",
+            ["无法保存偏好设置，原设置未改变。"] = "Cannot save preferences; original settings unchanged.",
             ["等待同步"] = "Syncing",
             ["等待更新检查"] = "Waiting for update check",
             ["自动更新已关闭"] = "Automatic updates off",
@@ -235,7 +240,7 @@ public sealed class UiText
             ["原帖暂无文字内容，点击查看"] = "No post text; open source",
             ["Tibo 动态暂不可确认"] = "Tibo status unverified",
             ["本账户重置已完成 · 庆祝！"] = "Account reset confirmed!",
-            ["已确认周额度回满，叮当继续监测 Tibo 新动态"] = "Weekly quota restored; Yaya is watching Tibo for news",
+            ["已确认周额度恢复，芽芽继续监测 Tibo 新动态"] = "Weekly quota restored; Yaya is watching Tibo for news",
             ["点击查看原帖"] = "Open original post",
             ["5小时限额"] = "5h",
             ["每周限额"] = "weekly",
@@ -281,6 +286,8 @@ public sealed class UiText
             ["UiText032"] = "正在获取动态与本账户状态",
             ["UiText033"] = "正在连接…",
             ["UiText034"] = "开机启动",
+            ["UiText035"] = "Tibo 联网监测（含翻译）",
+            ["UiText036"] = "极简模式",
         });
 
     public string Get(string source) => !IsChinese && EnglishBySource.TryGetValue(source, out var english)

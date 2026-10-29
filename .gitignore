@@ -1,6 +1,8 @@
 # Generated output and local deployments
 **/bin/
 **/obj/
+.tools/
+*_wpftmp.csproj
 publish*/
 artifacts/
 .codegraph/
@@ -34,3 +36,16 @@ config.toml
 *.p12
 .codex/
 README.local.md
+
+!docs/images/widget-confirmed-en.png
+!docs/images/widget-confirmed-zh.png
+!docs/images/widget-low-en.png
+!docs/images/widget-low-zh.png
+!docs/images/widget-minimal-en.png
+!docs/images/widget-minimal-zh.png
+!docs/images/widget-normal-en.png
+!docs/images/widget-normal-zh.png
+!docs/images/widget-offline-en.png
+!docs/images/widget-offline-zh.png
+!docs/images/widget-planned-en.png
+!docs/images/widget-planned-zh.png

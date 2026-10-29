@@ -12,6 +12,54 @@ internal sealed record WidgetInstallPlan(string TargetDirectory, string PayloadD
 internal sealed record WidgetRecoveryJournal(string Product, string BackupDirectory, Dictionary<string, string> PreviousHashes);
 internal enum WidgetRecoveryResult { None, Busy, Recovered }
 
+internal sealed class WidgetUpdateHandoff : IDisposable
+{
+    private readonly string _job;
+    private readonly Process? _helper;
+    private readonly CancellationToken _token;
+    private readonly CancellationTokenRegistration _registration;
+    private readonly object _sync = new();
+    private bool _committed, _canceled, _disposed;
+
+    internal WidgetUpdateHandoff(string job, CancellationToken token, Process? helper = null)
+    {
+        _job = job; _token = token; _helper = helper;
+        _registration = token.Register(Revoke);
+    }
+
+    internal bool TryCommit()
+    {
+        lock (_sync)
+        {
+            if (_disposed || _canceled || _committed || _token.IsCancellationRequested) return false;
+            WidgetDataPaths.WriteJsonAtomic(Path.Combine(_job, "approved"), new { approved = true });
+            _committed = true;
+        }
+        _registration.Dispose();
+        return true;
+    }
+
+    private void Revoke()
+    {
+        lock (_sync)
+        {
+            if (_committed || _canceled) return;
+            _canceled = true;
+            try { WidgetDataPaths.WriteJsonAtomic(Path.Combine(_job, "revoked"), new { revoked = true }); }
+            catch (Exception error) when (WidgetDataPaths.IsStorageError(error))
+            { Debug.WriteLine("Update handoff canceled without an approval permit."); }
+        }
+    }
+
+    public void Dispose()
+    {
+        Revoke();
+        lock (_sync) _disposed = true;
+        _registration.Dispose();
+        _helper?.Dispose();
+    }
+}
+
 public static class WidgetUpdateInstaller
 {
     internal static readonly string[] RuntimeFiles = ["CodexUsageWidget.dll", "CodexUsageWidget.exe",
@@ -49,11 +97,12 @@ public static class WidgetUpdateInstaller
         }
     }
 
-    public static async Task<bool> LaunchAsync(PreparedWidgetUpdate update, CancellationToken token)
+    internal static async Task<WidgetUpdateHandoff?> LaunchAsync(PreparedWidgetUpdate update, CancellationToken token)
     {
+        token.ThrowIfCancellationRequested();
         var target = LocalDirectory(AppContext.BaseDirectory);
         VerifyFiles(update.PayloadDirectory, update.Hashes);
-        var parent = Process.GetCurrentProcess();
+        using var parent = Process.GetCurrentProcess();
         var old = RuntimeFiles.ToDictionary(name => name, name => Hash(Path.Combine(target, name)));
         var job = Path.Combine(Path.GetDirectoryName(LocalDirectory(update.PayloadDirectory))!, "helper-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(job);
@@ -72,15 +121,41 @@ public static class WidgetUpdateInstaller
         info.ArgumentList.Add(Path.Combine(job, "CodexUsageWidget.dll"));
         info.ArgumentList.Add("--apply-widget-update");
         info.ArgumentList.Add(planFile);
-        using var helper = Process.Start(info) ?? throw new IOException("Update helper unavailable.");
-        for (var attempt = 0; attempt < 50; attempt++)
+        var helper = Process.Start(info) ?? throw new IOException("Update helper unavailable.");
+        var handoff = new WidgetUpdateHandoff(job, token, helper);
+        var transferred = false;
+        try
         {
-            token.ThrowIfCancellationRequested();
-            if (helper.HasExited) return false;
-            if (File.Exists(Path.Combine(job, "ready"))) return true;
-            await Task.Delay(100, token);
+            for (var attempt = 0; attempt < 50; attempt++)
+            {
+                token.ThrowIfCancellationRequested();
+                if (helper.HasExited) return null;
+                if (File.Exists(Path.Combine(job, "ready"))) { transferred = true; return handoff; }
+                await Task.Delay(100, token);
+            }
+            return null;
         }
-        return false;
+        finally { if (!transferred) handoff.Dispose(); }
+    }
+
+    internal static bool IsApplyApproved(string job)
+    {
+        try
+        {
+            if (IsApplyRevoked(job)) return false;
+            using var permit = JsonDocument.Parse(WidgetDataPaths.ReadBytes(Path.Combine(job, "approved"), 128));
+            var root = permit.RootElement;
+            return root.ValueKind == JsonValueKind.Object && root.EnumerateObject().Count() == 1 &&
+                root.GetProperty("approved").ValueKind == JsonValueKind.True;
+        }
+        catch (Exception error) when (WidgetDataPaths.IsStorageError(error) ||
+            error is JsonException or KeyNotFoundException or InvalidOperationException) { return false; }
+    }
+
+    private static bool IsApplyRevoked(string job)
+    {
+        try { return File.Exists(WidgetDataPaths.LocalFile(Path.Combine(job, "revoked"))); }
+        catch (Exception error) when (WidgetDataPaths.IsStorageError(error)) { return true; }
     }
 
     internal static void ReplaceTransactional(string target, string payload, string backup,
@@ -213,10 +288,15 @@ public static class WidgetUpdateInstaller
                 {
                     using var parent = Process.GetProcessById(plan.ParentProcessId);
                     if (parent.StartTime.ToUniversalTime() != plan.ParentStartedUtc) return 2;
-                    using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(45));
-                    await parent.WaitForExitAsync(deadline.Token);
+                    for (var attempt = 0; !parent.HasExited; attempt++)
+                    {
+                        if (attempt >= 450 || IsApplyRevoked(job)) return 1;
+                        await Task.Delay(100);
+                    }
                 }
                 catch (ArgumentException) { }
+                // A ready helper is not permission to install: UI rechecks opt-in before committing.
+                if (!IsApplyApproved(job)) return 1;
                 parentExited = true;
                 backup = Path.Combine(job, "backup");
                 ReplaceTransactional(target, plan.PayloadDirectory, backup, plan.PreviousHashes, plan.NewHashes);
@@ -269,13 +349,13 @@ public static class WidgetUpdateInstaller
     {
         try
         {
-            var path = Path.Combine(target, "widget-runtime.json");
-            if (new FileInfo(path).Length > 128 * 1024) return false;
-            using var document = JsonDocument.Parse(File.ReadAllText(path));
+            using var document = JsonDocument.Parse(WidgetDataPaths.ReadBytes(WidgetDataPaths.RuntimeStatusPath(target), 8192));
             var data = document.RootElement;
             return data.GetProperty("buildVersion").GetString() == version && data.GetProperty("running").GetBoolean() &&
+                data.GetProperty("moduleId").GetGuid() != Guid.Empty &&
                 data.GetProperty("processId").GetInt32() == pid && data.GetProperty("updatedAtUtc").GetDateTimeOffset() >= since;
         }
-        catch (Exception ex) when (ex is IOException or JsonException or InvalidOperationException or KeyNotFoundException or FormatException) { return false; }
+        catch (Exception ex) when (WidgetDataPaths.IsStorageError(ex) ||
+            ex is JsonException or InvalidOperationException or KeyNotFoundException or FormatException) { return false; }
     }
 }

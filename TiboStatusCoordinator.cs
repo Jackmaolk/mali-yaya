@@ -56,7 +56,7 @@ public sealed class TiboStatusCoordinator
             {
                 Kind = TiboSignalKind.Confirmed,
                 Headline = "本账户重置已完成 · 庆祝！",
-                Detail = "已确认周额度回满，叮当继续监测 Tibo 新动态"
+                Detail = "已确认周额度恢复，芽芽继续监测 Tibo 新动态"
             };
             _confirmedAt = now;
             var hasStart = TiboResetConfirmationPolicy.TryWindowStart(weekly, out var start);
@@ -138,39 +138,22 @@ public static class TiboResetConfirmationPolicy
         RateLimitSnapshot current, DateTimeOffset now)
     {
         var weekly = UsageWindowSelector.FindWeekly(current);
-        // Product rule: a fresh weekly reading at 100% ends account verification immediately.
-        if (weekly?.UsedPercent == 0) return true;
+        // The first reading is a baseline, never evidence that a reset just happened.
         if (!TryWindowStart(weekly, out var weeklyStart) || weekly is null ||
-            weekly.WindowDurationMins is not >= 10000 ||
-            weeklyStart > now.AddMinutes(2) || now - weeklyStart > TimeSpan.FromHours(6))
+            weekly.WindowDurationMins is not >= 10000 || weekly.ResetsAt <= now.ToUnixTimeSeconds() ||
+            weeklyStart > now.AddMinutes(2) ||
+            previousWeekly is not { ResetsAt: not null } ||
+            !TryWindowStart(previousWeekly, out var previousStart) || previousStart > now.AddMinutes(2) ||
+            previousWeekly.WindowDurationMins != weekly.WindowDurationMins ||
+            previousWeekly.UsedPercent <= weekly.UsedPercent)
             return false;
 
-        // Local account evidence has priority over approximate community timestamps.
-        if (previousWeekly is { ResetsAt: not null } &&
-            previousWeekly.WindowDurationMins == weekly.WindowDurationMins &&
-            previousWeekly.UsedPercent > weekly.UsedPercent &&
-            TryWindowStart(previousWeekly, out _) &&
-            (decimal)weekly.ResetsAt!.Value - previousWeekly.ResetsAt.Value > 60)
-            return true;
-
-        // Cold starts can miss the 100% sample. Synchronized fresh week/5h origins
-        // still identify the new account cycle after some allowance has been spent.
-        var fiveHour = UsageWindowSelector.FindFiveHour(current);
-        if (TryWindowStart(fiveHour, out var fiveHourStart) &&
-            Math.Abs((fiveHourStart - weeklyStart).TotalMinutes) <= 10)
-            return true;
-
-        if (notice?.Kind is not (TiboSignalKind.Planned or TiboSignalKind.ExpiredNotice or TiboSignalKind.ObservedReset) ||
-            notice.PostTime is not { } postTime || postTime > now || weeklyStart < postTime.AddMinutes(-5))
-            return false;
-        var observed = notice.Kind == TiboSignalKind.ObservedReset;
-        if (observed && (notice.ObservedAt is not { } observation || observation < postTime ||
-                         observation > now.AddMinutes(2) || now - observation > TimeSpan.FromHours(24)))
-            return false;
-
-        // A weekly-only account can still be confirmed against a recent public observation.
-        return observed && notice.ObservedAt is { } observedAt &&
-            Math.Abs((weeklyStart - observedAt).TotalMinutes) <= 30;
+        var movement = (decimal)weekly.ResetsAt!.Value - previousWeekly.ResetsAt.Value;
+        if (movement < -60) return false;
+        // A witnessed restoration to full is evidence even if a grant keeps the same deadline.
+        if (weekly.UsedPercent == 0) return true;
+        // A missed full sample needs both reduced use and a recently advanced weekly cycle.
+        return movement > 60 && now - weeklyStart <= TimeSpan.FromHours(6);
     }
 
     internal static bool TryWindowStart(RateLimitWindow? window, out DateTimeOffset start)

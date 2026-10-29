@@ -2,7 +2,15 @@
 
 [简体中文](README.md)
 
-A compact Windows WPF companion focused on Tibo reset announcements, Beijing-time reset windows, account-confirmed recovery reminders, and quota countdowns. Version 2026.10.28.3 is an unofficial source preview, not an OpenAI product or a signed production installer. Repository: [Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya). Publicly visible source does not imply a license to redistribute or commercialize it; see [rights](RIGHTS.md).
+## What Changed
+
+**2026.10.28.5 is an unreleased candidate.** It fixes first-reading reset false positives, unsafe optional-storage startup failures and canceled update handoffs. It adds .NET 10/LocalAppData migration, independent Tibo networking and minimal-mode preferences, push/PR CI and 12 bilingual state previews.
+
+691 local tests passed; audit, coverage and real-machine release gates remain outstanding. See the **[complete bilingual changelog](CHANGELOG.md)** for fixes, limitations and verification results.
+
+**Right-click the widget's title bar or panel background for CLI connection, update repository, Tibo monitoring and minimal-mode settings.** Tibo monitoring is on for first-time use; automatic updating is still off by default. These are independent switches.
+
+A compact Windows WPF companion focused on Tibo reset announcements, Beijing-time reset windows, account-confirmed recovery reminders, and quota countdowns. Version 2026.10.28.5 on this feature branch is an unofficial .NET 10 release candidate, not an OpenAI product or a signed production installer. Repository: [Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya). Publicly visible source does not imply a license to redistribute or commercialize it; see [rights](RIGHTS.md).
 
 ## Running Screenshot
 
@@ -16,6 +24,19 @@ Values, plan, posts, opportunities and times reflect that capture only, not inst
 
 Include your app/Windows version, display scaling, reproduction steps and expected result. Redact emails, names, private conversations, paths and credentials before sharing images. Do not attach auth.json, tokens, complete runtime logs or private account-state files.
 
+## State Gallery (12 Offline Previews)
+
+Rendered by the actual WPF interface using synthetic fixtures, not live accounts or current announcements. Each image is labeled. Tests send no network requests. The real user-provided screenshot above remains separate.
+
+| 状态 / State | 中文 | English |
+| --- | --- | --- |
+| 正常额度 / Normal usage | <img src="docs/images/widget-normal-zh.png" alt="正常额度 / Normal usage 中文模拟预览" width="250" /> | <img src="docs/images/widget-normal-en.png" alt="正常额度 / Normal usage English synthetic preview" width="250" /> |
+| 预告重置 / Reset announced | <img src="docs/images/widget-planned-zh.png" alt="预告重置 / Reset announced 中文模拟预览" width="250" /> | <img src="docs/images/widget-planned-en.png" alt="预告重置 / Reset announced English synthetic preview" width="250" /> |
+| 已确认重置 / Account reset confirmed | <img src="docs/images/widget-confirmed-zh.png" alt="已确认重置 / Account reset confirmed 中文模拟预览" width="250" /> | <img src="docs/images/widget-confirmed-en.png" alt="已确认重置 / Account reset confirmed English synthetic preview" width="250" /> |
+| 额度偏低 / Low quota | <img src="docs/images/widget-low-zh.png" alt="额度偏低 / Low quota 中文模拟预览" width="250" /> | <img src="docs/images/widget-low-en.png" alt="额度偏低 / Low quota English synthetic preview" width="250" /> |
+| 极简模式 / Minimal mode | <img src="docs/images/widget-minimal-zh.png" alt="极简模式 / Minimal mode 中文模拟预览" width="250" /> | <img src="docs/images/widget-minimal-en.png" alt="极简模式 / Minimal mode English synthetic preview" width="250" /> |
+| Tibo 联网关闭 / Tibo networking off | <img src="docs/images/widget-offline-zh.png" alt="Tibo 联网关闭 / Tibo networking off 中文模拟预览" width="250" /> | <img src="docs/images/widget-offline-en.png" alt="Tibo 联网关闭 / Tibo networking off English synthetic preview" width="250" /> |
+
 ## Network Comes First
 
 The widget needs working access to Codex and the public activity/translation services. If your network cannot reach them directly, first connect your own proxy tool to a working node and configure it as appropriate. Directly reachable networks need no additional proxy. This software supplies no proxy subscription or nodes.
@@ -26,17 +47,42 @@ Automatic proxy-port scanning, airport/node switching, Clash/LLG control and sys
 
 ## Get Started
 
-1. Install a compatible .NET 9 Desktop Runtime on Windows x64. This runtime is near the end of support; migrating to a supported LTS and using current security patches remain release requirements.
+1. Install [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) on a supported, fully patched Windows system. Development requires the .NET 10 SDK. A plain .NET or ASP.NET Runtime is not sufficient. Do not disable CET/security protections on outdated Windows.
 2. Install and sign in to your own Codex CLI, or use an accessible CLI bundled with Codex Desktop/your IDE. A browser login alone does not guarantee that this CLI is signed in. API-key authentication is not the same as a ChatGPT subscription.
 3. Extract the complete verified release folder and run CodexUsageWidget.exe. No terminal window is required, but the widget naturally has a background process.
 
-No production GitHub download release has been published yet. Creating a repository or pushing source does not create an installer or enable automatic updates. Do not install another project's release as an update for this widget. Extract all runtime files to a writable local directory; current state storage is not suitable for a read-only installation folder.
+The existing [GitHub Releases](https://github.com/Jackmaolk/mali-yaya/releases) download is a legacy .NET 9 preview. This .NET 10 candidate is not a published stable release until PR review and acceptance gates pass. Creating a repository or pushing source does not create an installer or enable automatic updates. Do not install another project's release as an update for this widget. Runtime data/cache now use current-user LocalAppData, with separate per-install health and private state. Binary replacement still requires a writable install directory. Old .NET 9 updaters cannot accept .NET 10 updates: install Desktop Runtime 10 and manually extract the new package first.
 
 ## Language and Appearance
 
 The interface follows the Windows display language on startup: zh cultures use Chinese; English and other cultures use English. It does not change Windows settings, infer language from IP/proxy, or call a translation service for its UI. Restart the widget after changing the OS display language.
 
 The original leaf robot, Yaya, reacts to quota conditions and reset states. The generated mint-green app icon is embedded in the launcher. Internal runtime filenames stay stable for updates. For this personal installation, explicitly running InstallDesktopEntry.exe creates a desktop launcher named 码力芽芽.exe on Chinese systems or Mali Yaya.exe otherwise; it backs up the old entry first. It never needs to reboot Windows or Codex. See [icon provenance](docs/ICON-DESIGN.md).
+
+## Right-Click Menu
+
+**Right-click the running widget's title bar or panel background**, not the desktop EXE or shortcut. Menu labels follow the Windows display language.
+
+| Menu Item | Behavior And Limits |
+| --- | --- |
+| Detect Codex CLI again | Clears the manually selected CLI path, checks trusted known installation locations again and attempts to connect. It does not scan the whole disk, install software or sign you in. |
+| Select Codex CLI... | Select a trusted, architecture-compatible native CLI `.exe`, not the desktop application, a shortcut or a `.cmd` / `.ps1` script. Saves the selection and attempts to connect. |
+| View Codex connection info | Shows the CLI source, version and path, or a not-detected message. It does not display or export credentials. |
+| Automatic updates (every 24 hours) | Check to enable, uncheck to disable; off by default. Configure this software's specific repository first. Attempts are limited to once per 24 hours, including failures. |
+| Configure update repository... | Enter a specific repository such as `Jackmaolk/mali-yaya`, not a profile URL or token. Saving keeps automatic updates off; explicitly check the update switch afterward if wanted. |
+| View update status | Shows the current version, configured repository, update switch and latest status. This is an information dialog, not a manual-update button that bypasses the 24-hour interval. |
+| Tibo online monitoring (with translation) | Enables public activity queries, post verification and on-demand translation; on for first-time use. Turning it off stops this networking, not account quota refresh or the local countdown. |
+| Minimal mode | Hides news, advice and auxiliary details while keeping main quotas, Yaya and the countdown. Uncheck to restore the full panel. It does not change the Tibo switch. |
+
+The menu also has a disabled, read-only update-status line whose text changes with update state. Tibo and minimal-mode choices are saved independently for the next launch. Upgrades preserve an explicit Tibo opt-out.
+
+**Refresh, fold and close are top-panel buttons, not context-menu items.** Startup at Windows sign-in uses the bottom checkbox. Folding or minimal mode does not stop background monitoring.
+
+## Independent Networking and Minimal Mode
+
+Tibo monitoring is on by default on first launch: it automatically checks public activity, verifies posts and translates on demand. Right-click **Tibo online monitoring (with translation)** to turn it off or on. A saved off preference is preserved across upgrades; invalid or unsafe settings fail closed. Turning it off cancels requests/retries and rejects late results, without stopping account quota refresh or the local countdown. Already sent requests cannot be recalled.
+
+**Minimal mode** hides the news/advice/details, keeping quotas, the original robot and countdown. It is a separate saved preference, not a networking switch. Folding the panel also does not turn networking off.
 
 ## Everyday Use
 
@@ -71,7 +117,7 @@ These are in-widget cards, text and character animations, not Windows toast, aud
 
 All displayed reset times use Beijing time (UTC+8). US daylight-saving changes mean a fixed year-round time offset is incorrect. A usable source timestamp/window is converted; ambiguous text such as "tomorrow" is not independently turned into a guaranteed minute-accurate deadline.
 
-A fresh weekly reading at 100% remaining immediately ends account verification under the current product rule. If the 100% moment was missed, new-cycle timestamps, decreased usage and other validated account evidence can still identify recovery. A 95% reading alone is not sufficient. Recovery does not prove which announcement caused it or remove separate five-hour/model restrictions.
+The first reading is a baseline, not a reset event, even at 100% remaining. With valid weekly metadata, a witnessed recovery from previously consumed quota to full confirms restoration. If that instant was missed, usage must decrease while the same-duration weekly deadline advances and the new cycle begins within six hours. Backward deadlines, missing metadata or a 95% reading alone are not enough. Recovery does not prove which announcement caused it or remove separate five-hour/model restrictions.
 
 The stacked flip clock is the account's actual five-hour window, not the announcement timer. Only a newly reported account resetsAt changes the deadline. Cached reliable deadlines continue ticking locally during failures; at zero the clock waits for a real new endpoint rather than adding another five hours.
 

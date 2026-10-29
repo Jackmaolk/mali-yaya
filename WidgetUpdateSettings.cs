@@ -6,8 +6,7 @@ namespace CodexUsageWidget;
 
 public static partial class WidgetUpdateSettings
 {
-    public static string FilePath => Path.Combine(Environment.GetFolderPath(
-        Environment.SpecialFolder.LocalApplicationData), "CodexUsageWidget", "update-settings.json");
+    public static string FilePath => WidgetDataPaths.UpdateSettingsPath;
 
     public static bool IsOwnedRepository(string? repository) => repository is not null &&
         RepositoryPattern().IsMatch(repository) && !repository.EndsWith(".git", StringComparison.OrdinalIgnoreCase);
@@ -19,26 +18,16 @@ public static partial class WidgetUpdateSettings
     {
         try
         {
-            var file = path ?? FilePath;
-            if (new FileInfo(file).Length is < 2 or > 8192) return new();
-            var options = JsonSerializer.Deserialize<WidgetUpdateOptions>(File.ReadAllText(file));
+            var options = JsonSerializer.Deserialize<WidgetUpdateOptions>(WidgetDataPaths.ReadBytes(path ?? FilePath, 8192));
             return options is not null && IsOwnedRepository(options.Repository) ? options : new();
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException) { return new(); }
+        catch (Exception ex) when (WidgetDataPaths.IsStorageError(ex) || ex is JsonException) { return new(); }
     }
 
     public static void Save(WidgetUpdateOptions options, string? path = null)
     {
         if (options.Repository is not null && !IsOwnedRepository(options.Repository) ||
             options.Enabled && options.Repository is null) throw new ArgumentException("请选择本软件所有者的具体仓库。", nameof(options));
-        var file = Path.GetFullPath(path ?? FilePath);
-        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        var temporary = file + ".tmp-" + Guid.NewGuid().ToString("N");
-        try
-        {
-            File.WriteAllText(temporary, JsonSerializer.Serialize(options));
-            File.Move(temporary, file, overwrite: true);
-        }
-        finally { if (File.Exists(temporary)) File.Delete(temporary); }
+        WidgetDataPaths.WriteJsonAtomic(path ?? FilePath, options);
     }
 }

@@ -37,17 +37,22 @@ public sealed class TiboResetMonitor : IDisposable
         @"\breset(?:s|ting)?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly TimeZoneInfo ChinaZone = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
     private readonly HttpClient _client;
+    private readonly bool _ownsClient;
     private TiboPost? _lastVerifiedPost;
     private readonly Dictionary<string, (TiboPost Post, DateTimeOffset VerifiedAt)> _verifiedPosts = [];
 
     public TiboResetMonitor(HttpClient? client = null)
     {
-        _client = client ?? new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
+        _ownsClient = client is null;
+        _client = client ?? new HttpClient(new HttpClientHandler
+        {
+            AllowAutoRedirect = false, UseCookies = false, UseDefaultCredentials = false,
+            Credentials = null, DefaultProxyCredentials = null
+        })
         {
             Timeout = TimeSpan.FromSeconds(12),
             MaxResponseContentBufferSize = 1024 * 1024
         };
-        _client.DefaultRequestHeaders.UserAgent.ParseAdd("CodexUsageWidget/1.0");
     }
 
     public async Task<TiboSignal> CheckAsync(CancellationToken cancellationToken = default)
@@ -55,7 +60,8 @@ public sealed class TiboResetMonitor : IDisposable
         var now = DateTimeOffset.UtcNow;
         try
         {
-            using var feedResponse = await _client.GetAsync(FeedUrl, cancellationToken);
+            using var feedResponse = await GetPublicAsync(FeedUrl, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             feedResponse.EnsureSuccessStatusCode();
             using var feed = JsonDocument.Parse(await feedResponse.Content.ReadAsStreamAsync(cancellationToken));
             var root = feed.RootElement;
@@ -124,6 +130,7 @@ public sealed class TiboResetMonitor : IDisposable
                     verificationFailed = true;
                     continue;
                 }
+                cancellationToken.ThrowIfCancellationRequested();
                 if (isLatest)
                 {
                     latestPost = verifiedPost;
@@ -175,8 +182,9 @@ public sealed class TiboResetMonitor : IDisposable
         {
             try
             {
-                using var response = await _client.GetAsync(
-                    $"https://{host}/thsottiaux/status/{id}", cancellationToken);
+                using var response = await GetPublicAsync(
+                    new Uri($"https://{host}/thsottiaux/status/{id}"), cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
                 response.EnsureSuccessStatusCode();
                 using var document = JsonDocument.Parse(await response.Content.ReadAsStreamAsync(cancellationToken));
                 var root = document.RootElement;
@@ -200,6 +208,7 @@ public sealed class TiboResetMonitor : IDisposable
                 var text = ReadString(post, "text") ?? "";
                 if (text.Length > MaxPostTextLength) continue;
                 var verifiedPost = new TiboPost(text, url, verifiedTime);
+                cancellationToken.ThrowIfCancellationRequested();
                 _verifiedPosts[id] = (verifiedPost, DateTimeOffset.UtcNow);
                 if (_verifiedPosts.Count > 32)
                     _verifiedPosts.Remove(_verifiedPosts.MinBy(entry => entry.Value.VerifiedAt).Key);
@@ -288,5 +297,16 @@ public sealed class TiboResetMonitor : IDisposable
     private static string ChinaDate(DateTimeOffset time) =>
         TimeZoneInfo.ConvertTime(time, ChinaZone).ToString("M月d日 HH:mm");
 
-    public void Dispose() => _client.Dispose();
+    private async Task<HttpResponseMessage> GetPublicAsync(Uri url, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (_client.DefaultRequestHeaders.Any()) throw new HttpRequestException("Ambient headers are not allowed.");
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.UserAgent.ParseAdd("MaliYaya/1.0");
+        var response = await _client.SendAsync(request, token);
+        if (token.IsCancellationRequested) { response.Dispose(); token.ThrowIfCancellationRequested(); }
+        return response;
+    }
+
+    public void Dispose() { if (_ownsClient) _client.Dispose(); }
 }

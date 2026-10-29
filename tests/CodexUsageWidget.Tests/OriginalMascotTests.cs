@@ -71,10 +71,19 @@ public sealed class OriginalMascotTests
         snapshot.ResetOpportunityReported = true;
         Invoke(window, "UpdatePetMood", snapshot);
         Assert.Equal("机会在手", Find<TextBlock>(window, "PetMoodText").Text);
+        Invoke(window, "ApplySnapshot", snapshot);
         Invoke(window, "ApplySnapshot", Weekly(100));
         Assert.Equal("重置完成！", Find<TextBlock>(window, "PetMoodText").Text);
         Assert.Equal(135.0, Find<RotateTransform>(window, "LeftArmRotate").GetAnimationBaseValue(RotateTransform.AngleProperty));
         Assert.Equal(-135.0, Find<RotateTransform>(window, "RightArmRotate").GetAnimationBaseValue(RotateTransform.AngleProperty));
+    });
+
+    [Fact]
+    public void InitialFullWeeklyQuotaDoesNotShowResetCompletePose() => InSta(() =>
+    {
+        var window = new MainWindow(System.Globalization.CultureInfo.GetCultureInfo("zh-CN"));
+        Invoke(window, "ApplySnapshot", Weekly(100));
+        Assert.NotEqual("重置完成！", Find<TextBlock>(window, "PetMoodText").Text);
     });
 
     [Fact]

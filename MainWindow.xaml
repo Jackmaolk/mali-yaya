@@ -22,6 +22,9 @@
             <MenuItem Header="{DynamicResource UiText005}" Click="ConfigureUpdate_Click"/>
             <MenuItem Header="{DynamicResource UiText006}" Click="UpdateInfo_Click"/>
             <MenuItem x:Name="UpdateStatusMenu" Header="{DynamicResource UiText007}" IsEnabled="False"/>
+            <Separator/>
+            <MenuItem x:Name="TiboNetworkMenu" Header="{DynamicResource UiText035}" IsCheckable="True" Click="TiboNetwork_Click"/>
+            <MenuItem x:Name="CompactModeMenu" Header="{DynamicResource UiText036}" IsCheckable="True" Click="CompactMode_Click"/>
         </ContextMenu>
     </Window.ContextMenu>
     <Window.Resources>

@@ -84,21 +84,25 @@ public partial class App : Application
         MainWindow.Show();
     }
 
-    private static bool IsCurrentBuildRunning()
+    private static bool IsCurrentBuildRunning() => IsCurrentBuildRunningForInstallation(AppContext.BaseDirectory);
+
+    internal static bool IsCurrentBuildRunningForInstallation(string installationDirectory)
     {
         try
         {
-            using var state = JsonDocument.Parse(File.ReadAllText(
-                Path.Combine(AppContext.BaseDirectory, "widget-runtime.json")));
+            using var state = JsonDocument.Parse(WidgetDataPaths.ReadBytes(WidgetDataPaths.RuntimeStatusPath(installationDirectory), 8192));
             var root = state.RootElement;
-            if (!root.TryGetProperty("assemblyId", out var assemblyId) ||
+            if (!root.TryGetProperty("buildVersion", out var buildVersion) ||
+                buildVersion.GetString() != WidgetRuntimeStatus.BuildVersion ||
+                !root.TryGetProperty("moduleId", out var assemblyId) ||
                 assemblyId.GetGuid() != typeof(App).Assembly.ManifestModule.ModuleVersionId ||
                 !root.TryGetProperty("processId", out var pid) ||
+                !root.TryGetProperty("updatedAtUtc", out var updatedAt) ||
                 !root.TryGetProperty("running", out var running) || !running.GetBoolean()) return false;
             using var process = Process.GetProcessById(pid.GetInt32());
-            return !process.HasExited;
+            return !process.HasExited && updatedAt.GetDateTimeOffset() >= process.StartTime.ToUniversalTime();
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or
+        catch (Exception ex) when (WidgetDataPaths.IsStorageError(ex) || ex is JsonException or
                                       ArgumentException or InvalidOperationException or FormatException or
                                       System.ComponentModel.Win32Exception)
         {

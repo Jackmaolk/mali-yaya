@@ -8,13 +8,29 @@ public sealed record CountdownCheckpoint(long ResetsAt, DateTimeOffset Confirmed
 
 public static class WidgetRuntimeStatus
 {
-    public const string BuildVersion = "2026.10.28.3";
+    public const string BuildVersion = "2026.10.28.5";
 
     public static void Write(RateLimitSnapshot? snapshot, TiboSignal? signal, bool running = true,
         string? chineseBrief = null, string? translationProvider = null,
         string? translationSourceUrl = null, string? fiveHourCountdown = null,
         long? clockResetsAt = null, DateTimeOffset? clockConfirmedAtUtc = null)
     {
+        // Readiness must not depend on an account, a quota response, or public-post translation.
+        try
+        {
+            WidgetDataPaths.WriteJsonAtomic(WidgetDataPaths.RuntimeStatusPath(), new
+            {
+                buildVersion = BuildVersion,
+                moduleId = typeof(App).Assembly.ManifestModule.ModuleVersionId,
+                processId = Environment.ProcessId,
+                running,
+                updatedAtUtc = DateTimeOffset.UtcNow
+            });
+        }
+        catch (Exception ex) when (WidgetDataPaths.IsStorageError(ex))
+        {
+            Debug.WriteLine("Runtime health status unavailable.");
+        }
         try
         {
             var data = new
@@ -37,30 +53,22 @@ public static class WidgetRuntimeStatus
                 headline = signal?.Headline,
                 detail = signal?.Detail
             };
-            var path = Path.Combine(AppContext.BaseDirectory, "widget-runtime.json");
-            var temporary = path + ".tmp";
-            File.WriteAllText(temporary, JsonSerializer.Serialize(data));
-            File.Move(temporary, path, overwrite: true);
+            WidgetDataPaths.WriteJsonAtomic(WidgetDataPaths.AccountRuntimePath(), data);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (WidgetDataPaths.IsStorageError(ex))
         {
-            Debug.WriteLine($"Runtime status unavailable: {ex.Message}");
+            Debug.WriteLine("Account runtime status unavailable.");
         }
     }
 
     public static CountdownCheckpoint? ReadCountdownCheckpoint(string? path = null)
     {
+        // No persisted account binding exists yet. Only explicit synthetic/fixture paths may restore a clock.
+        if (path is null) return null;
         try
         {
-            path ??= Path.Combine(AppContext.BaseDirectory, "widget-runtime.json");
-            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
-                FileShare.Read | FileShare.Delete);
             const int maximumBytes = 2 * 1024 * 1024;
-            if (stream.Length is 0 or > maximumBytes) return null;
-
-            var bytes = new byte[(int)stream.Length];
-            stream.ReadExactly(bytes);
-            using var document = JsonDocument.Parse(bytes);
+            using var document = JsonDocument.Parse(WidgetDataPaths.ReadBytes(path, maximumBytes));
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object) return null;
 
@@ -81,8 +89,7 @@ public static class WidgetRuntimeStatus
 
             return new CountdownCheckpoint(resetsAt, confirmedAt);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or
-            JsonException or ArgumentException or NotSupportedException or System.Security.SecurityException)
+        catch (Exception ex) when (WidgetDataPaths.IsStorageError(ex) || ex is JsonException)
         {
             Debug.WriteLine($"Countdown checkpoint unavailable: {ex.Message}");
             return null;
