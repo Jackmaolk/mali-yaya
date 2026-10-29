@@ -73,10 +73,12 @@ public static class UsageAgent
 
     private static bool IsPaceFast(RateLimitWindow window, DateTimeOffset now)
     {
-        if (window.ResetsAt is not long resetUnix || window.WindowDurationMins is not > 0) return false;
+        if (window.ResetsAt is not (>= -62135596800 and <= 253402300799) ||
+            window.WindowDurationMins is not (> 0 and <= 525600)) return false;
 
-        var end = DateTimeOffset.FromUnixTimeSeconds(resetUnix).ToLocalTime();
+        var end = DateTimeOffset.FromUnixTimeSeconds(window.ResetsAt.Value);
         var duration = TimeSpan.FromMinutes(window.WindowDurationMins.Value);
+        if (end.Ticks < duration.Ticks) return false;
         var start = end - duration;
         var elapsedRatio = Math.Clamp((now - start).TotalMinutes / duration.TotalMinutes, 0, 1);
         var expectedUsedPercent = elapsedRatio * 100;
@@ -85,8 +87,8 @@ public static class UsageAgent
 
     private static string FormatRemainingTime(long? resetUnix, DateTimeOffset now)
     {
-        if (resetUnix is not long value) return "重置时间等待上报";
-        var remaining = DateTimeOffset.FromUnixTimeSeconds(value).ToLocalTime() - now;
+        if (resetUnix is not (>= -62135596800 and <= 253402300799)) return "重置时间等待上报";
+        var remaining = DateTimeOffset.FromUnixTimeSeconds(resetUnix.Value) - now;
         if (remaining <= TimeSpan.Zero) return "即将重置";
         if (remaining.TotalDays >= 1) return $"约 {Math.Floor(remaining.TotalDays)} 天后重置";
         return $"约 {Math.Max(1, Math.Ceiling(remaining.TotalHours))} 小时后重置";

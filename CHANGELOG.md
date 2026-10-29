@@ -1,5 +1,20 @@
 # 更新日志 / Changelog
 
+## 未发布：2026.10.29.1 安全性与稳定性修复 / Unreleased Hardening Candidate
+
+- 修复缺失 usedPercent 被默认为 0% 已用、错误显示满额或确认重置的风险；请求和推送均拒绝缺失/越界额度，保留最后可靠数据。
+- 五小时窗口先筛选合理范围，避免异常超大负数触发整数取绝对值溢出；节奏建议同样防护无效时间、日期下溢和时长溢出，坏的可选重置时间降级为等待同步而非丢弃有效百分比。
+- 预告有明确截止时间时，本地时钟到期立即降级为“时间已过，待确认”，不依赖联网成功；过期较久后降低检查频率，不据此庆祝重置。
+- 修复异常重置卡到期时间转换为北京时间时导致面板崩溃的问题；不可表示的日期降级为只显示可用次数。
+- 重置机会缓存限定在单个 app-server 连接内；只上报次数时不拼接旧卡片的有效期。空卡片列表、空元素和无效时间戳不再导致额度读取崩溃。
+- 用随机且不序列化的内存连接标记隔离额度基线、庆祝状态和倒计时；新连接首次数据建立基线，不拿两个连接的数据推断账户重置，不读取账号 ID 或凭据。
+- 补充缺失额度、异常数据、请求/推送、重连、有效期、预告过期和中英文界面回归测试。完整本地套件 **731 通过，0 失败，0 跳过**；相较上一轮新增 38 项。
+
+只保存为独立修复候选版，没有替换本机安装、覆盖 main、修改代理/登录设置或公开正式 Release。本机 NuGet 漏洞源仍出现 NU1900，覆盖率与剩余实机验收仍未通过；不能把本地测试成功等同于完整安全认证。
+
+English: Reject missing/out-of-range quota rather than interpreting it as full. Expire cached announcements from the local clock; bind reset opportunities, recovery baselines and countdowns to a non-persisted random connection marker. Safely ignore malformed optional credit-expiry entries. All 731 local tests passed. This candidate is not installed or publicly released; hosted CI and remaining real-machine gates must be recorded separately.
+
+
 ## 未发布：2026.10.28.5 候选版 / Unreleased Candidate
 
 - 首次启动默认开启 Tibo 自动监测：检查公开动态、核对作者与帖子，并按需获取中文机译。已有手动关闭选择不会被覆盖；损坏或不安全的设置仍停止联网。

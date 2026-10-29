@@ -491,6 +491,12 @@ public partial class MainWindow : Window
     private void ApplySnapshot(RateLimitSnapshot snapshot)
     {
         if (_stopping) return;
+        if (_snapshot?.ConnectionSessionId is { } previous && snapshot.ConnectionSessionId != previous)
+        {
+            _countdownWindow = null;
+            _countdownConfirmedAt = null;
+            _expiredFiveHourRefresh = null;
+        }
         _tiboStatus.OnSnapshot(snapshot, DateTimeOffset.Now);
         _snapshot = snapshot;
         PlanText.Text = snapshot.PlanType?.ToUpperInvariant() ?? "--";
@@ -774,6 +780,17 @@ public partial class MainWindow : Window
     private void UpdateResetLabels()
     {
         var now = DateTimeOffset.UtcNow;
+        if (_tiboStatus.Tick(now))
+        {
+            RenderTiboStatus();
+            UpdateTiboSchedule();
+            if (_snapshot is not null)
+            {
+                ApplyAgentAdvice(CurrentAgentAdvice(_snapshot));
+                UpdatePetMood(_snapshot);
+            }
+            WriteRuntimeStatus();
+        }
         var fiveHour = _snapshot is null ? null : UsageWindowSelector.FindFiveHour(_snapshot);
         var weekly = _snapshot is null ? null : UsageWindowSelector.FindWeekly(_snapshot);
         var clock = _countdownWindow ?? fiveHour;
@@ -871,7 +888,9 @@ public partial class MainWindow : Window
         if (snapshot.ResetOpportunityExpiresAt is not long expiresAt)
             return _text.Format("可用 {0} 次", snapshot.ResetOpportunityCount);
 
-        var expiry = DateTimeOffset.FromUnixTimeSeconds(expiresAt).ToOffset(TimeSpan.FromHours(8));
+        DateTimeOffset expiry;
+        try { expiry = DateTimeOffset.FromUnixTimeSeconds(expiresAt).ToOffset(TimeSpan.FromHours(8)); }
+        catch (ArgumentOutOfRangeException) { return _text.Format("可用 {0} 次", snapshot.ResetOpportunityCount); }
         return _text.Format("可用 {0} 次 · {1:M月d日}前", snapshot.ResetOpportunityCount, expiry);
     }
 

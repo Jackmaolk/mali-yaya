@@ -4,13 +4,13 @@
 
 ## What Changed
 
-**2026.10.28.5 is an unreleased candidate.** It fixes first-reading reset false positives, unsafe optional-storage startup failures and canceled update handoffs. It adds .NET 10/LocalAppData migration, independent Tibo networking and minimal-mode preferences, push/PR CI and 12 bilingual state previews.
+**2026.10.29.1 is an unreleased candidate.** It fixes first-reading reset false positives, unsafe optional-storage startup failures and canceled update handoffs. It adds .NET 10/LocalAppData migration, independent Tibo networking and minimal-mode preferences, push/PR CI and 12 bilingual state previews.
 
-693 local tests passed; audit, coverage and real-machine release gates remain outstanding. See the **[complete bilingual changelog](CHANGELOG.md)** for fixes, limitations and verification results.
+731 local tests passed; audit, coverage and real-machine release gates remain outstanding. See the **[complete bilingual changelog](CHANGELOG.md)** for fixes, limitations and verification results.
 
 **Right-click the widget's title bar or panel background for CLI connection, update repository, Tibo monitoring and minimal-mode settings.** Tibo monitoring is on for first-time use; automatic updating is still off by default. These are independent switches.
 
-A compact Windows WPF companion focused on Tibo reset announcements, Beijing-time reset windows, account-confirmed recovery reminders, and quota countdowns. Version 2026.10.28.5 on this feature branch is an unofficial .NET 10 release candidate, not an OpenAI product or a signed production installer. Repository: [Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya). Publicly visible source does not imply a license to redistribute or commercialize it; see [rights](RIGHTS.md).
+A compact Windows WPF companion focused on Tibo reset announcements, Beijing-time reset windows, account-confirmed recovery reminders, and quota countdowns. Version 2026.10.29.1 on this feature branch is an unofficial .NET 10 release candidate, not an OpenAI product or a signed production installer. Repository: [Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya). Publicly visible source does not imply a license to redistribute or commercialize it; see [rights](RIGHTS.md).
 
 ## Running Screenshot
 
@@ -117,9 +117,9 @@ These are in-widget cards, text and character animations, not Windows toast, aud
 
 All displayed reset times use Beijing time (UTC+8). US daylight-saving changes mean a fixed year-round time offset is incorrect. A usable source timestamp/window is converted; ambiguous text such as "tomorrow" is not independently turned into a guaranteed minute-accurate deadline.
 
-The first reading is a baseline, not a reset event, even at 100% remaining. With valid weekly metadata, a witnessed recovery from previously consumed quota to full confirms restoration. If that instant was missed, usage must decrease while the same-duration weekly deadline advances and the new cycle begins within six hours. Backward deadlines, missing metadata or a 95% reading alone are not enough. Recovery does not prove which announcement caused it or remove separate five-hour/model restrictions.
+The first reading, including the first sample after each new CLI connection, is a baseline, not a reset event, even at 100% remaining. With valid weekly metadata, a witnessed recovery from previously consumed quota to full confirms restoration. If that instant was missed, usage must decrease while the same-duration weekly deadline advances and the new cycle begins within six hours. Backward deadlines, missing metadata or a 95% reading alone are not enough. Recovery does not prove which announcement caused it or remove separate five-hour/model restrictions.
 
-The stacked flip clock is the account's actual five-hour window, not the announcement timer. Only a newly reported account resetsAt changes the deadline. Cached reliable deadlines continue ticking locally during failures; at zero the clock waits for a real new endpoint rather than adding another five hours.
+The stacked flip clock is the account's actual five-hour window, not the announcement timer. Only a newly reported account resetsAt changes the deadline. Within the same connection, cached reliable deadlines continue ticking locally during failures. A new CLI connection discards the prior connection's unbound countdown, recovery conclusion and reset-opportunity cache and waits for fresh data; at zero the clock waits for a real new endpoint rather than adding another five hours.
 
 ### Polling Schedule
 

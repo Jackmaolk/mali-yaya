@@ -24,6 +24,16 @@ public sealed class TiboStatusCoordinator
 
     public void OnSnapshot(RateLimitSnapshot snapshot, DateTimeOffset now)
     {
+        if (_snapshot?.ConnectionSessionId is { } previous && snapshot.ConnectionSessionId != previous)
+        {
+            // A fresh transport is not evidence that two samples belong to the same account.
+            _previousWeekly = null;
+            _confirmed = null;
+            _confirmedAt = null;
+            _confirmedCycleStart = null;
+            _confirmedWindowEnd = null;
+            _celebrationPending = false;
+        }
         _snapshot = snapshot;
         _snapshotReceivedAt = now;
         Reconcile(now);
@@ -43,8 +53,22 @@ public sealed class TiboStatusCoordinator
         return true;
     }
 
+    public bool Tick(DateTimeOffset now)
+    {
+        var previous = Display;
+        Reconcile(now);
+        return previous != Display;
+    }
+
     private void Reconcile(DateTimeOffset now)
     {
+        if (_source is { Kind: TiboSignalKind.Planned, ExpectedEndAt: { } end } && end <= now)
+            _source = _source with
+            {
+                Kind = TiboSignalKind.ExpiredNotice,
+                Headline = "预告参考时间已过，待确认",
+                Detail = "请以账户实际额度为准 · 点此看原帖"
+            };
         var weekly = _snapshot is null ? null : UsageWindowSelector.FindWeekly(_snapshot);
         if (_snapshot is not null && _snapshotReceivedAt is { } receivedAt &&
             now - receivedAt <= TimeSpan.FromMinutes(2) &&

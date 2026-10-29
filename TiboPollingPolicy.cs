@@ -38,6 +38,8 @@ public static class TiboPollingPolicy
 
     private static TiboPollingPlan Planned(TiboSignal signal, DateTimeOffset now)
     {
+        if (signal.ExpectedEndAt is { } deadline && deadline <= now)
+            return Expired(signal, now);
         // Once the announced start is reached, stay alert throughout the window.
         if (signal.ExpectedAt is { } start && start <= now)
             return Plan("planned-imminent", 20, 5);
