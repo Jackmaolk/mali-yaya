@@ -1,22 +1,97 @@
-# 码力芽芽 · Codex 用量桌面组件
+# Codex MaliYaya · 码力芽芽
 
-[English](README.en.md)
+[English](README.en.md) · [下载现有测试版](https://github.com/Jackmaolk/mali-yaya/releases) · [反馈建议](https://github.com/Jackmaolk/mali-yaya/issues/new)
+
+**看额度、追预告、确认重置。让原创芽芽陪你使用 Codex。**
+
+Windows 桌面小组件：五小时翻页倒计时、每周额度、Tibo 公开动态、北京时间预告、账户重置庆祝，中英文界面随系统切换。
+
+独立项目，**非 OpenAI 官方产品**。展示名称加入 Codex 前缀，仓库仍为 `Jackmaolk/mali-yaya`，下载地址、更新源和程序文件名不变。
 
 ## 本次更新了什么
 
-**2026.10.29.1 候选变更，尚未正式发布。** 修复首次周额度 100% 误报重置、设置异常启动失败和取消更新后助手仍可能安装的问题；迁移 .NET 10 与 LocalAppData；新增独立 Tibo 联网开关、极简模式、push/PR CI 和 12 张中英文状态预览。
+**2026.10.29.1 / .NET 10 Windows x64 测试版。** 修复首次周额度 100% 误报重置、设置异常启动失败和取消更新后助手仍可能安装的问题；迁移 .NET 10 与 LocalAppData；新增独立 Tibo 联网开关、极简模式、push/PR CI 和 15 张运行/状态图片。
 
-本地 731 项测试通过，但漏洞审计、覆盖率与实机发行验收仍有未通过项目。详见 **[完整中英文更新日志](CHANGELOG.md)**，不要将候选更新当成已发布稳定版。
+731 项自动化测试通过，远端依赖审计步骤通过；真实账号、干净系统、更新回滚和覆盖率仍待验收。详见 **[完整中英文更新日志](CHANGELOG.md)**，不要将候选更新当成已发布稳定版。
 
 **有右键菜单：在小组件标题栏或面板背景处单击鼠标右键，即可设置 CLI 连接、更新仓库、Tibo 联网监测和极简模式。** Tibo 首次使用默认开启；自动更新仍默认关闭，二者是独立开关。
 
 > Windows 桌面上的 Codex 重置情报助手：关注 Tibo 发文、查看北京时间预告、确认本账户重置，再用原创小宠物庆祝。
 
-非 OpenAI 官方产品，无隶属、赞助或背书关系。当前功能分支为 **2026.10.29.1 / .NET 10 候选版**，不是已完成商用签名、安装和真实自动升级验收的正式安装包。项目仓库：[Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya)。没有正式 Release 时，不表示已经提供可供普通用户下载的安装程序。源码可见不等于已授予开源或商用许可，见 [权利说明](RIGHTS.md)。
+非 OpenAI 官方产品，无隶属、赞助或背书关系。当前版本为 **2026.10.29.1 / .NET 10 测试版**，不是已完成商用签名、安装和真实自动升级验收的正式安装包。项目仓库：[Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya)。测试版需要手动完整解压；自动更新不会安装预发布版本。源码可见不等于已授予开源或商用许可，见 [权利说明](RIGHTS.md)。
 
-## 运行截图
+## 先看界面：中英文 × 7 种状态
 
-<img src="docs/images/widget-reset-complete-zh.png" alt="码力芽芽实际运行：原创芽芽角色、上下翻页倒计时、五小时与每周额度，以及本账户重置完成提醒" width="463" />
+**共 15 张图：14 张中英文状态演示 + 1 张用户授权实机截图。** 状态演示由真实 WPF 界面离线渲染，使用模拟数据，并在图底标注；不是实时账户截图、当前有效预告或权益承诺。
+
+以下演示展示 .NET 10 界面；时间、额度与帖子均为模拟或截图当时的数据，不代表当前账户状态。手机窄屏可逐张阅读，点击图片放大。
+
+### 重置完成 · 芽芽庆祝
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-confirmed-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-confirmed-zh.png" alt="重置完成 · 芽芽庆祝：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-confirmed-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-confirmed-en.png" alt="Reset confirmed · Yaya celebrates: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+左侧/上方为中文，右侧/下方为英文；点击图片可查看原图。
+
+### 提前预告 · 北京时间
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-planned-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-planned-zh.png" alt="提前预告 · 北京时间：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-planned-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-planned-en.png" alt="Reset announced · Beijing time: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+左侧/上方为中文，右侧/下方为英文；点击图片可查看原图。
+
+### 联网失败 · 保留已知数据
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-unavailable-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-unavailable-zh.png" alt="联网失败 · 保留已知数据：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-unavailable-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-unavailable-en.png" alt="Connection failure · Keep last known data: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+左侧/上方为中文，右侧/下方为英文；点击图片可查看原图。
+
+### 日常额度 · 翻页倒计时
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-normal-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-normal-zh.png" alt="日常额度 · 翻页倒计时：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-normal-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-normal-en.png" alt="Everyday quotas · Flip countdown: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+左侧/上方为中文，右侧/下方为英文；点击图片可查看原图。
+
+### 额度偏低 · 醒目提醒
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-low-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-low-zh.png" alt="额度偏低 · 醒目提醒：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-low-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-low-en.png" alt="Low allowance · Clear warning: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+左侧/上方为中文，右侧/下方为英文；点击图片可查看原图。
+
+### 极简模式 · 更小的桌面占用
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-minimal-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-minimal-zh.png" alt="极简模式 · 更小的桌面占用：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-minimal-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-minimal-en.png" alt="Minimal mode · A smaller desktop footprint: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+左侧/上方为中文，右侧/下方为英文；点击图片可查看原图。
+
+### 主动关闭 Tibo · 额度照常刷新
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-offline-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-offline-zh.png" alt="主动关闭 Tibo · 额度照常刷新：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-offline-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-offline-en.png" alt="Tibo switched off · Quota still refreshes: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+左侧/上方为中文，右侧/下方为英文；点击图片可查看原图。
+
+## 用户提供的实机截图
+
+<img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-reset-complete-zh.png" alt="码力芽芽实际运行：原创芽芽角色、上下翻页倒计时、五小时与每周额度，以及本账户重置完成提醒" width="463" />
 
 用户提供的新版实机截图，非设计稿。左侧为芽芽与上下结构翻页倒计时；右侧显示账户额度、随机重置机会；下方为 Tibo 原文、中文概要与本账户重置完成提醒。
 
@@ -26,18 +101,6 @@
 
 反馈时请说明软件版本、Windows 版本、屏幕缩放比例、复现步骤及期望效果。截图只保留必要区域，先遮住邮箱、用户名、私密对话、路径或凭据；不要上传 auth.json、Token、完整运行日志或个人账户状态文件。
 
-## 中英文多状态预览（12 张）
-
-以下由真实 WPF 界面加载合成测试数据离线渲染，不是实时账户截图或当前有效预告；每张均带模拟数据标记。生成过程不请求账号或网络。上方用户授权的真实截图单独保留。
-
-| 状态 / State | 中文 | English |
-| --- | --- | --- |
-| 正常额度 / Normal usage | <img src="docs/images/widget-normal-zh.png" alt="正常额度 / Normal usage 中文模拟预览" width="250" /> | <img src="docs/images/widget-normal-en.png" alt="正常额度 / Normal usage English synthetic preview" width="250" /> |
-| 预告重置 / Reset announced | <img src="docs/images/widget-planned-zh.png" alt="预告重置 / Reset announced 中文模拟预览" width="250" /> | <img src="docs/images/widget-planned-en.png" alt="预告重置 / Reset announced English synthetic preview" width="250" /> |
-| 已确认重置 / Account reset confirmed | <img src="docs/images/widget-confirmed-zh.png" alt="已确认重置 / Account reset confirmed 中文模拟预览" width="250" /> | <img src="docs/images/widget-confirmed-en.png" alt="已确认重置 / Account reset confirmed English synthetic preview" width="250" /> |
-| 额度偏低 / Low quota | <img src="docs/images/widget-low-zh.png" alt="额度偏低 / Low quota 中文模拟预览" width="250" /> | <img src="docs/images/widget-low-en.png" alt="额度偏低 / Low quota English synthetic preview" width="250" /> |
-| 极简模式 / Minimal mode | <img src="docs/images/widget-minimal-zh.png" alt="极简模式 / Minimal mode 中文模拟预览" width="250" /> | <img src="docs/images/widget-minimal-en.png" alt="极简模式 / Minimal mode English synthetic preview" width="250" /> |
-| Tibo 联网关闭 / Tibo networking off | <img src="docs/images/widget-offline-zh.png" alt="Tibo 联网关闭 / Tibo networking off 中文模拟预览" width="250" /> | <img src="docs/images/widget-offline-en.png" alt="Tibo 联网关闭 / Tibo networking off English synthetic preview" width="250" /> |
 
 ## 先看这三点
 
@@ -90,7 +153,7 @@
 
 ### 1.3 下载与启动
 
-[GitHub Releases](https://github.com/Jackmaolk/mali-yaya/releases) 提供既有 .NET 9 预览包；本次 .NET 10 候选版在 PR 审查和验收完成前不冒充正式版。请只从本仓库下载名称严格匹配的 ZIP，核对 SHA256SUMS.txt 与 GitHub 资产摘要。
+[2026.10.29.1 测试版下载](https://github.com/Jackmaolk/mali-yaya/releases/tag/v2026.10.29.1)（Windows x64 / .NET 10；发布准备期间链接可能尚未生效）。这不是已签名的稳定版安装器；使用前请查看发行说明中的待验收项。请只从本仓库下载名称严格匹配的 ZIP，核对 SHA256SUMS.txt 与 GitHub 资产摘要。
 
 1. 完整解压 ZIP 到可写的本机文件夹，保留 EXE、DLL、两个运行配置 JSON 和 release-manifest.json。
 2. 双击 CodexUsageWidget.exe；不需要命令窗口常驻，但正常运行仍有后台进程。

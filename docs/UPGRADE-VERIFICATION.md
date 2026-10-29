@@ -1,3 +1,18 @@
+# 2026.10.29.1 Preview Integration
+
+The owner explicitly authorized merging PR #3 into the upgrade branch, merging
+PR #1 into main, rerunning exact-main CI and publishing a non-latest prerelease.
+The resolved homepage preserves all 15 authorized images and the Codex MaliYaya
+display title, with current .NET 10 instructions. Source packaging now checks
+both 15-image galleries and rejects a modified failure-state preview (10 checks).
+All 117 source files, including two individually hash-pinned failure images,
+remain allowlisted; no arbitrary image or private runtime export is permitted.
+The runtime code is unchanged from the 731-test hardening source. Hosted CI
+results and final asset digests must be recorded against the exact merged SHA.
+No stable acceptance, real-account result or live local replacement is claimed.
+
+---
+
 # 2026.10.29.1 Hardening Follow-Up
 
 Branch: `fix/monitor-hardening`, based on the reviewed .NET 10 candidate. The public homepage documentation remains independently merged; no application merge or live replacement is part of this change.

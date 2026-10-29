@@ -26,6 +26,8 @@ function Get-WidgetSourceEntries([string]$Root) {
         'docs/images/widget-offline-zh.png',
         'docs/images/widget-planned-en.png',
         'docs/images/widget-planned-zh.png',
+        'docs/images/widget-unavailable-zh.png',
+        'docs/images/widget-unavailable-en.png',
         'RIGHTS.md', 'PRIVACY.md', 'SECURITY.md', 'THIRD_PARTY.md', 'README.en.md', 'CHANGELOG.md',
         'launcher/WidgetLauncher.cs', 'launcher/RestartWidget.cs', 'launcher/InstallDesktopEntry.cs',
         'scripts/SourcePolicy.ps1', 'scripts/Prepare-Source.ps1',
@@ -57,6 +59,8 @@ function Get-WidgetSourceEntries([string]$Root) {
 function Assert-WidgetSourceText([string]$Path, [string]$Label) {
     # Only reviewed artwork and this consented screenshot bypass text scanning, with pinned hashes.
     $artwork = @{
+        'docs/images/widget-unavailable-en.png' = 'cef17fc196c80e058372997a4e29bf2e446142a00d8114120e864f65722256fd'
+        'docs/images/widget-unavailable-zh.png' = 'a8d8e25a80590e4438b0c8aad2cd2817e179ac589eec3c11cadd0c5076f28747'
         'docs/images/widget-confirmed-en.png' = 'e73902316d24e0d206cbb5817ffd3cc7b5183d5908e34866b116e6c31ed4816c'
         'docs/images/widget-confirmed-zh.png' = '4514523f71cb359657d6d807397104f6b60933d2fe3db701581166e714bae89b'
         'docs/images/widget-low-en.png' = '3becb4fbdcf69d517b23a93b10d3c5eda4ab45b5f2460c293e31cd085856c4c4'

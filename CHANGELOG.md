@@ -1,6 +1,6 @@
 # 更新日志 / Changelog
 
-## 未发布：2026.10.29.1 安全性与稳定性修复 / Unreleased Hardening Candidate
+## 2026.10.29.1 Windows x64 测试版 / Preview
 
 - 修复缺失 usedPercent 被默认为 0% 已用、错误显示满额或确认重置的风险；请求和推送均拒绝缺失/越界额度，保留最后可靠数据。
 - 五小时窗口先筛选合理范围，避免异常超大负数触发整数取绝对值溢出；节奏建议同样防护无效时间、日期下溢和时长溢出，坏的可选重置时间降级为等待同步而非丢弃有效百分比。
@@ -10,9 +10,9 @@
 - 用随机且不序列化的内存连接标记隔离额度基线、庆祝状态和倒计时；新连接首次数据建立基线，不拿两个连接的数据推断账户重置，不读取账号 ID 或凭据。
 - 补充缺失额度、异常数据、请求/推送、重连、有效期、预告过期和中英文界面回归测试。完整本地套件 **731 通过，0 失败，0 跳过**；相较上一轮新增 38 项。
 
-只保存为独立修复候选版，没有替换本机安装、覆盖 main、修改代理/登录设置或公开正式 Release。本机 NuGet 漏洞源仍出现 NU1900，覆盖率与剩余实机验收仍未通过；不能把本地测试成功等同于完整安全认证。
+经仓库所有者授权，修复合并后发布为预发布测试版，不标为稳定版，不触发正式版自动更新；没有替换本机安装或修改代理/登录设置。保留首页 15 张截图，并新增中英文首页图片完整性与失败状态截图篡改检查。本机 NuGet 漏洞源仍出现 NU1900，覆盖率与剩余实机验收仍未通过；不能把本地测试成功等同于完整安全认证。
 
-English: Reject missing/out-of-range quota rather than interpreting it as full. Expire cached announcements from the local clock; bind reset opportunities, recovery baselines and countdowns to a non-persisted random connection marker. Safely ignore malformed optional credit-expiry entries. All 731 local tests passed. This candidate is not installed or publicly released; hosted CI and remaining real-machine gates must be recorded separately.
+English: Reject missing/out-of-range quota rather than interpreting it as full. Expire cached announcements from the local clock; bind reset opportunities, recovery baselines and countdowns to a non-persisted random connection marker. Safely ignore malformed optional credit-expiry entries. All 731 local tests passed. Owner-authorized preview publication follows reviewed merges and exact-main CI; it is not a stable release, live installation change or completed real-machine acceptance.
 
 
 ## 未发布：2026.10.28.5 候选版 / Unreleased Candidate

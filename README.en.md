@@ -1,41 +1,95 @@
-# Mali Yaya · Codex Usage Desktop Companion
+# Codex MaliYaya · Codex Usage Desktop Companion
 
-[简体中文](README.md)
+[简体中文](README.md) · [Current preview downloads](https://github.com/Jackmaolk/mali-yaya/releases) · [Feedback](https://github.com/Jackmaolk/mali-yaya/issues/new)
+
+**Know your allowance. Follow reset announcements. Celebrate account-confirmed recovery.**
+
+An independent Windows desktop companion with an original leaf robot, a stacked flip countdown, weekly quotas, Tibo activity and Beijing-time notices. **Not an official OpenAI product.** The Codex prefix is a display-title change only: the repository, update source and runtime filenames are unchanged.
 
 ## What Changed
 
-**2026.10.29.1 is an unreleased candidate.** It fixes first-reading reset false positives, unsafe optional-storage startup failures and canceled update handoffs. It adds .NET 10/LocalAppData migration, independent Tibo networking and minimal-mode preferences, push/PR CI and 12 bilingual state previews.
+**2026.10.29.1 / .NET 10 is a Windows x64 preview, not a stable release.** It fixes first-reading reset false positives, unsafe optional-storage startup failures and canceled update handoffs. It adds .NET 10/LocalAppData migration, independent Tibo networking and minimal-mode preferences, push/PR CI and a 15-image bilingual gallery.
 
-731 local tests passed; audit, coverage and real-machine release gates remain outstanding. See the **[complete bilingual changelog](CHANGELOG.md)** for fixes, limitations and verification results.
+731 automated tests and hosted dependency-audit steps passed; coverage and real-machine acceptance remain outstanding. See the **[complete bilingual changelog](CHANGELOG.md)** for fixes, limitations and verification results.
 
 **Right-click the widget's title bar or panel background for CLI connection, update repository, Tibo monitoring and minimal-mode settings.** Tibo monitoring is on for first-time use; automatic updating is still off by default. These are independent switches.
 
-A compact Windows WPF companion focused on Tibo reset announcements, Beijing-time reset windows, account-confirmed recovery reminders, and quota countdowns. Version 2026.10.29.1 on this feature branch is an unofficial .NET 10 release candidate, not an OpenAI product or a signed production installer. Repository: [Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya). Publicly visible source does not imply a license to redistribute or commercialize it; see [rights](RIGHTS.md).
+A compact Windows WPF companion focused on Tibo reset announcements, Beijing-time reset windows, account-confirmed recovery reminders, and quota countdowns. Version 2026.10.29.1 is an unofficial .NET 10 preview, not an OpenAI product or a signed production installer. Repository: [Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya). Publicly visible source does not imply a license to redistribute or commercialize it; see [rights](RIGHTS.md).
 
-## Running Screenshot
+## See It In Action: 7 States, Both Languages
 
-<img src="docs/images/widget-reset-complete-zh.png" alt="Mali Yaya running in Chinese: original robot, stacked flip countdown, account quotas and a confirmed reset celebration" width="463" />
+**15 images: 14 bilingual state demonstrations and one consented real screenshot.** Demonstrations are rendered by the actual WPF interface using isolated, offline synthetic data. Each is labeled; none is evidence of a live announcement, account benefit or current reset.
 
-A user-supplied screenshot of the running widget, not a mockup. It shows the original Yaya character, stacked countdown, five-hour/weekly account data, reset opportunities and Tibo's original text with a Chinese brief. The Chinese interface is pictured; the UI also follows an English Windows display language.
+The demonstrations show the .NET 10 interface; values and posts are synthetic or capture-time data, not current account evidence. Images wrap on narrow screens; tap to view full size.
 
-Values, plan, posts, opportunities and times reflect that capture only, not installation defaults, a currently valid announcement or benefits promised to another account. The completion message uses account evidence, not the quoted post alone. Older third-party character artwork is not included as current product imagery.
+### Reset confirmed · Yaya celebrates
 
-[Full-size image](docs/images/widget-reset-complete-zh.png) · [Feedback / report a problem](https://github.com/Jackmaolk/mali-yaya/issues/new)
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-confirmed-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-confirmed-zh.png" alt="重置完成 · 芽芽庆祝：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-confirmed-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-confirmed-en.png" alt="Reset confirmed · Yaya celebrates: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
 
-Include your app/Windows version, display scaling, reproduction steps and expected result. Redact emails, names, private conversations, paths and credentials before sharing images. Do not attach auth.json, tokens, complete runtime logs or private account-state files.
+Left/top: Chinese. Right/bottom: English. Tap an image for full size.
 
-## State Gallery (12 Offline Previews)
+### Reset announced · Beijing time
 
-Rendered by the actual WPF interface using synthetic fixtures, not live accounts or current announcements. Each image is labeled. Tests send no network requests. The real user-provided screenshot above remains separate.
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-planned-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-planned-zh.png" alt="提前预告 · 北京时间：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-planned-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-planned-en.png" alt="Reset announced · Beijing time: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
 
-| 状态 / State | 中文 | English |
-| --- | --- | --- |
-| 正常额度 / Normal usage | <img src="docs/images/widget-normal-zh.png" alt="正常额度 / Normal usage 中文模拟预览" width="250" /> | <img src="docs/images/widget-normal-en.png" alt="正常额度 / Normal usage English synthetic preview" width="250" /> |
-| 预告重置 / Reset announced | <img src="docs/images/widget-planned-zh.png" alt="预告重置 / Reset announced 中文模拟预览" width="250" /> | <img src="docs/images/widget-planned-en.png" alt="预告重置 / Reset announced English synthetic preview" width="250" /> |
-| 已确认重置 / Account reset confirmed | <img src="docs/images/widget-confirmed-zh.png" alt="已确认重置 / Account reset confirmed 中文模拟预览" width="250" /> | <img src="docs/images/widget-confirmed-en.png" alt="已确认重置 / Account reset confirmed English synthetic preview" width="250" /> |
-| 额度偏低 / Low quota | <img src="docs/images/widget-low-zh.png" alt="额度偏低 / Low quota 中文模拟预览" width="250" /> | <img src="docs/images/widget-low-en.png" alt="额度偏低 / Low quota English synthetic preview" width="250" /> |
-| 极简模式 / Minimal mode | <img src="docs/images/widget-minimal-zh.png" alt="极简模式 / Minimal mode 中文模拟预览" width="250" /> | <img src="docs/images/widget-minimal-en.png" alt="极简模式 / Minimal mode English synthetic preview" width="250" /> |
-| Tibo 联网关闭 / Tibo networking off | <img src="docs/images/widget-offline-zh.png" alt="Tibo 联网关闭 / Tibo networking off 中文模拟预览" width="250" /> | <img src="docs/images/widget-offline-en.png" alt="Tibo 联网关闭 / Tibo networking off English synthetic preview" width="250" /> |
+Left/top: Chinese. Right/bottom: English. Tap an image for full size.
+
+### Connection failure · Keep last known data
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-unavailable-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-unavailable-zh.png" alt="联网失败 · 保留已知数据：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-unavailable-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-unavailable-en.png" alt="Connection failure · Keep last known data: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+Left/top: Chinese. Right/bottom: English. Tap an image for full size.
+
+### Everyday quotas · Flip countdown
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-normal-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-normal-zh.png" alt="日常额度 · 翻页倒计时：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-normal-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-normal-en.png" alt="Everyday quotas · Flip countdown: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+Left/top: Chinese. Right/bottom: English. Tap an image for full size.
+
+### Low allowance · Clear warning
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-low-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-low-zh.png" alt="额度偏低 · 醒目提醒：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-low-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-low-en.png" alt="Low allowance · Clear warning: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+Left/top: Chinese. Right/bottom: English. Tap an image for full size.
+
+### Minimal mode · A smaller desktop footprint
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-minimal-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-minimal-zh.png" alt="极简模式 · 更小的桌面占用：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-minimal-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-minimal-en.png" alt="Minimal mode · A smaller desktop footprint: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+Left/top: Chinese. Right/bottom: English. Tap an image for full size.
+
+### Tibo switched off · Quota still refreshes
+
+<p>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-offline-zh.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-offline-zh.png" alt="主动关闭 Tibo · 额度照常刷新：中文离线界面演示，模拟数据" width="280" /></a>
+<a href="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-offline-en.png"><img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-offline-en.png" alt="Tibo switched off · Quota still refreshes: English offline UI demonstration with synthetic data" width="280" /></a>
+</p>
+
+Left/top: Chinese. Right/bottom: English. Tap an image for full size.
+
+## Consented Real Running Screenshot
+
+<img src="https://raw.githubusercontent.com/Jackmaolk/mali-yaya/main/docs/images/widget-reset-complete-zh.png" alt="User-provided real Chinese screenshot: original Yaya, account quotas, flip countdown and confirmed recovery" width="463" />
+
+This separate user-provided capture shows a real running widget. Its values, subscription, posts and timestamps reflect that capture only, not installation defaults or promises to another account. No older third-party character artwork is presented as current product imagery.
 
 ## Network Comes First
 
@@ -51,7 +105,7 @@ Automatic proxy-port scanning, airport/node switching, Clash/LLG control and sys
 2. Install and sign in to your own Codex CLI, or use an accessible CLI bundled with Codex Desktop/your IDE. A browser login alone does not guarantee that this CLI is signed in. API-key authentication is not the same as a ChatGPT subscription.
 3. Extract the complete verified release folder and run CodexUsageWidget.exe. No terminal window is required, but the widget naturally has a background process.
 
-The existing [GitHub Releases](https://github.com/Jackmaolk/mali-yaya/releases) download is a legacy .NET 9 preview. This .NET 10 candidate is not a published stable release until PR review and acceptance gates pass. Creating a repository or pushing source does not create an installer or enable automatic updates. Do not install another project's release as an update for this widget. Runtime data/cache now use current-user LocalAppData, with separate per-install health and private state. Binary replacement still requires a writable install directory. Old .NET 9 updaters cannot accept .NET 10 updates: install Desktop Runtime 10 and manually extract the new package first.
+[Download the 2026.10.29.1 preview](https://github.com/Jackmaolk/mali-yaya/releases/tag/v2026.10.29.1) (Windows x64 / .NET 10; the link may not be live while publication is being prepared). This is not a signed stable installer; read the remaining acceptance items in its release notes. Creating a repository or pushing source does not create an installer or enable automatic updates. Do not install another project's release as an update for this widget. Runtime data/cache now use current-user LocalAppData, with separate per-install health and private state. Binary replacement still requires a writable install directory. Old .NET 9 updaters cannot accept .NET 10 updates: install Desktop Runtime 10 and manually extract the new package first.
 
 ## Language and Appearance
 

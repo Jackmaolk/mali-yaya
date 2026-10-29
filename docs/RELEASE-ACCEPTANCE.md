@@ -70,6 +70,21 @@ zero requests with local process-scoped observation on the clean machine below.
   reputation or warning-free installation is promised. Do not disable security
   protection as an acceptance workaround; document a signing plan if required.
 
+## Separately Authorized Public Preview
+
+An explicit owner-approved public **preview** is separate from stable acceptance.
+It must use reviewed, merged main source with successful exact-main push CI,
+strict dependency audit and package/version/hash verification. Create a draft
+first, verify the downloaded assets and GitHub digests, then publish only as a
+prerelease with latest=false. Include the exact source SHA, CI links, runtime
+requirements, unsigned status, manual upgrade steps and every outstanding gate.
+Do not enable prerelease auto-updates or replace the user's live installation.
+
+This does not complete any real-machine gate, approve stable distribution or
+permit false acceptance inputs. The protected release.yml procedure below is
+unchanged; never supply real_acceptance_completed=true merely to upload a preview.
+The 2026.10.29.1 preview was explicitly authorized by the repository owner.
+
 ## Draft Candidate Procedure
 
 1. Merge reviewed source, tests and workflows into main. Never release directly

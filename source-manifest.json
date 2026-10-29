@@ -1,11 +1,11 @@
 {
     "schemaVersion":  1,
     "purpose":  "Reviewed source preview; not a production binary release",
-    "generatedAtUtc":  "2026-10-29T12:58:32.5332164+00:00",
+    "generatedAtUtc":  "2026-10-29T14:58:26.7238870+00:00",
     "files":  [
                   {
                       "path":  ".gitignore",
-                      "sha256":  "710819e1d6fceea38d7594a4e4ea7b14d0cf84c837c0590d7db07c2e5973cea4"
+                      "sha256":  "9413988604cb792735ce94ffc93b3af49efa0a56d92b2b6a7fdfcdb2f4b5d454"
                   },
                   {
                       "path":  ".gitattributes",
@@ -161,7 +161,7 @@
                   },
                   {
                       "path":  "README.github.md",
-                      "sha256":  "1b9c777c9ed580ec21aa0dffe674f802720e3f4b3dbeb777090ca488bfb234fc"
+                      "sha256":  "9987c10c9e6d644171521a2b7c91360b2cd19d494f61458acf0989448ccb4ddb"
                   },
                   {
                       "path":  "Assets/mali-yaya.png",
@@ -224,6 +224,14 @@
                       "sha256":  "c048661183cdef3385682780d4addaf20d2f28314306d43a861361a07aae14bf"
                   },
                   {
+                      "path":  "docs/images/widget-unavailable-zh.png",
+                      "sha256":  "a8d8e25a80590e4438b0c8aad2cd2817e179ac589eec3c11cadd0c5076f28747"
+                  },
+                  {
+                      "path":  "docs/images/widget-unavailable-en.png",
+                      "sha256":  "cef17fc196c80e058372997a4e29bf2e446142a00d8114120e864f65722256fd"
+                  },
+                  {
                       "path":  "RIGHTS.md",
                       "sha256":  "c1b3fd6e58789338b42623266d73777baa936ed660da13e30a5e15d88d984a82"
                   },
@@ -241,11 +249,11 @@
                   },
                   {
                       "path":  "README.en.md",
-                      "sha256":  "f73d0138237665c7c848b8cbf2a8fbd51976b233f39e7e9fb6d6437fb3bc863b"
+                      "sha256":  "4cf7627d28b885e8f041f3e23defdb49e0c3ea55e9095b72a52ee38b12ed011c"
                   },
                   {
                       "path":  "CHANGELOG.md",
-                      "sha256":  "b44985ac497824143fdd6979372ee9101ee988ff1fc5ad7377c95f8a6dfa43ed"
+                      "sha256":  "caa38c06d78463325875dcf24bff1b70baea2d85b2e593291574ac3e57ca24e6"
                   },
                   {
                       "path":  "launcher/WidgetLauncher.cs",
@@ -261,7 +269,7 @@
                   },
                   {
                       "path":  "scripts/SourcePolicy.ps1",
-                      "sha256":  "52fa137eabe9c64a1ba80042d2a9557aee7405667aecc8205fc9496d0091e134"
+                      "sha256":  "20f0afaacd17ff61b2cf70f0df3654622e1584ccc48781830e73e70874b64890"
                   },
                   {
                       "path":  "scripts/Prepare-Source.ps1",
@@ -273,7 +281,7 @@
                   },
                   {
                       "path":  "scripts/Test-SourcePackaging.ps1",
-                      "sha256":  "dab01cdb861eacb33d2b712de9c6b1913e3925b7406bc4476cd2b02d60c80126"
+                      "sha256":  "c55495e42eda4706f6fcdebad812df329af979360d5643514ed27bec2433bd57"
                   },
                   {
                       "path":  "scripts/Test-Launcher.ps1",
@@ -333,11 +341,11 @@
                   },
                   {
                       "path":  "docs/UPGRADE-VERIFICATION.md",
-                      "sha256":  "29801c035cd4d6ea8da2e33429c4ac8329e9b47f53e2bc984dccee1b58bf986a"
+                      "sha256":  "857362a7c0c7c29c3b2408732d86d68e6e5e86e47de29737b44b94e5e6210732"
                   },
                   {
                       "path":  "docs/RELEASE-ACCEPTANCE.md",
-                      "sha256":  "3502e196ea55fa2001fc68141f621f6b116d03ea9b062a5c3c876676ca84557d"
+                      "sha256":  "b408349ce040ec701abac37246d93141857c07e07dca8ae723d68730046cd8b0"
                   },
                   {
                       "path":  ".github/workflows/verify.yml",
@@ -349,7 +357,7 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "1b9c777c9ed580ec21aa0dffe674f802720e3f4b3dbeb777090ca488bfb234fc"
+                      "sha256":  "9987c10c9e6d644171521a2b7c91360b2cd19d494f61458acf0989448ccb4ddb"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/BoundarySafetyTests.cs",
