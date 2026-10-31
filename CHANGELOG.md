@@ -1,5 +1,16 @@
 # 更新日志 / Changelog
 
+## 2026.10.31.1 启动/退出热修复 / Lifecycle Hotfix Preview
+
+- 根据经脱敏核对的 Windows .NET Runtime 事件，定位到旧 .NET 9 在关闭事件内再次 Close 引发 InvalidOperationException；同一缺陷在 .NET 10 源码中仍存在，已用回归测试复现。日志证明的是窗口关闭重入，不把它误称为所有启动失败的唯一原因。
+- 清理同步完成或异步完成后，将最终关闭提交到 Dispatcher 队列，等待原始 Closing 返回；保留取消、等待客户端退出及重复关闭防护，不增加随机延时或强杀。
+- 关闭开始后的迟到 Loaded 回调直接返回，不能重新启动计时器、账户连接或联网服务。
+- 新增 6 项隔离回归测试：中英文未连接时关闭、中英文实际原生窗口加载后立即关闭、等待中的重复关闭、关闭后的迟到 Loaded。修复前 5 项失败、1 项通过；修复后完整本地套件 737 通过、0 失败、0 跳过。原生窗口测试移除产品 Loaded 服务初始化，不访问账户、凭据或 HTTP。
+- 版本、运行诊断、发布清单和中英文下载说明同步为 2026.10.31.1，保留 15 张首页截图。旧桌面入口不保证自动改指向新包，需核对；不修改系统代理或重启电脑/Codex。
+
+English: Fix WPF Closing reentrancy when asynchronous cleanup completes synchronously, and block late Loaded callbacks from restarting a closing widget. Six isolated regression cases pass; five reproduced failures before the fix. The full local suite has 737 passing tests. Native-window tests do not initialize CLI/HTTP services. This remains an unsigned .NET 10 preview; clean-machine/account/update acceptance is not claimed.
+
+
 ## 2026.10.29.1 Windows x64 测试版 / Preview
 
 - 修复缺失 usedPercent 被默认为 0% 已用、错误显示满额或确认重置的风险；请求和推送均拒绝缺失/越界额度，保留最后可靠数据。

@@ -1,3 +1,27 @@
+# 2026.10.31.1 Lifecycle Hotfix
+
+A scoped, redacted Windows .NET Runtime event from the old .NET 9 installation
+identified InvalidOperationException in MainWindow.Window_Closing / VerifyNotClosing.
+The same defect was independently reproduced in current .NET 10 source, with four
+failing Chinese/English unshown/native-window cases. A fifth regression reproduced
+a late Loaded callback restarting timers during shutdown; a busy-client repeated
+close control case already passed. All six cases pass after deferring final Close
+to the Dispatcher and rejecting Loaded after stopping. Full local suite: 737 passed,
+0 failed, 0 skipped. The native-window tests disable product startup services and
+use isolated data; they do not read account credentials, launch CLI or send HTTP.
+
+This evidence does not prove that every reported startup failure has that cause.
+The owner's desktop shortcut still names an older external installation. Source
+repairs and a GitHub release do not silently replace that local entry. No private
+crash log, account state or local paths are included in exported source.
+
+Exact-SHA hosted CI, strict dependency audit, runtime/package verification and
+public download digest checks are required before preview publication. All prior
+clean-machine, account, mixed-DPI, outbound-network and update/rollback acceptance
+gates remain pending; no stable release or coverage percentage is asserted.
+
+---
+
 # 2026.10.29.1 Preview Integration
 
 The owner explicitly authorized merging PR #3 into the upgrade branch, merging
