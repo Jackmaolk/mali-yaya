@@ -110,6 +110,7 @@ public partial class MainWindow : Window
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
+        if (_stopping) return;
         RestoreCountdownCheckpoint(WidgetRuntimeStatus.ReadCountdownCheckpoint());
         WriteRuntimeStatus();
         PositionTopRight();
@@ -1148,7 +1149,8 @@ public partial class MainWindow : Window
         _updates.Dispose();
         _briefCancellation?.Dispose();
         _shutdownComplete = true;
-        Close();
+        // Disposal can finish inline; leave the original Closing event before closing again.
+        _ = Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(Close));
     }
 }
 

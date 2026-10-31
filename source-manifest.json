@@ -1,7 +1,7 @@
 {
     "schemaVersion":  1,
     "purpose":  "Reviewed source preview; not a production binary release",
-    "generatedAtUtc":  "2026-10-29T14:58:26.7238870+00:00",
+    "generatedAtUtc":  "2026-10-31T01:26:02.9786326+00:00",
     "files":  [
                   {
                       "path":  ".gitignore",
@@ -45,7 +45,7 @@
                   },
                   {
                       "path":  "CodexUsageWidget.csproj",
-                      "sha256":  "c695b15589edf04de010b5f0bfa0781d06bd7b134729106dd39642b56f0fbf15"
+                      "sha256":  "ad2896780fec435f09fa8e8139d695fe49bb5b23c6ec3090173f256c3a76bc69"
                   },
                   {
                       "path":  "Directory.Build.props",
@@ -73,7 +73,7 @@
                   },
                   {
                       "path":  "MainWindow.xaml.cs",
-                      "sha256":  "ecbfd22e28cff98a498c5d8c4ad11766a9815b1d5e95583a89ced51b7cc433a1"
+                      "sha256":  "62ab39dba6021523a05bf702a768a6a0efa148a990d405e7e8f736a44763082d"
                   },
                   {
                       "path":  "Models.cs",
@@ -133,7 +133,7 @@
                   },
                   {
                       "path":  "WidgetRuntimeStatus.cs",
-                      "sha256":  "1315a243ed1fa5f2e561140d7fb5b1f30840b5f3d4f65b6280bec9ff67b91e2e"
+                      "sha256":  "92b39893e86b5e40a9b3e9cc6540e255bd713d10380456ffb60e79821625d7e0"
                   },
                   {
                       "path":  "WidgetDataPaths.cs",
@@ -161,7 +161,7 @@
                   },
                   {
                       "path":  "README.github.md",
-                      "sha256":  "9987c10c9e6d644171521a2b7c91360b2cd19d494f61458acf0989448ccb4ddb"
+                      "sha256":  "a0fdfcd9a75b61625cb77fdf884567dd990b9dd043c8cfa6b62abf53903cf26e"
                   },
                   {
                       "path":  "Assets/mali-yaya.png",
@@ -249,11 +249,11 @@
                   },
                   {
                       "path":  "README.en.md",
-                      "sha256":  "4cf7627d28b885e8f041f3e23defdb49e0c3ea55e9095b72a52ee38b12ed011c"
+                      "sha256":  "86432121230e5e36242419be8985bf12414a54e6f86d20b849aa36685c8cd8d0"
                   },
                   {
                       "path":  "CHANGELOG.md",
-                      "sha256":  "caa38c06d78463325875dcf24bff1b70baea2d85b2e593291574ac3e57ca24e6"
+                      "sha256":  "9a94df80563ba50fe49e9aa2c49ed0e582edaeb720881a1d404847727d778fb5"
                   },
                   {
                       "path":  "launcher/WidgetLauncher.cs",
@@ -341,7 +341,7 @@
                   },
                   {
                       "path":  "docs/UPGRADE-VERIFICATION.md",
-                      "sha256":  "857362a7c0c7c29c3b2408732d86d68e6e5e86e47de29737b44b94e5e6210732"
+                      "sha256":  "b68b278c5915319bd1e395f544bff7357029cdf082bc7c565914c1159ce899d4"
                   },
                   {
                       "path":  "docs/RELEASE-ACCEPTANCE.md",
@@ -357,7 +357,7 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "9987c10c9e6d644171521a2b7c91360b2cd19d494f61458acf0989448ccb4ddb"
+                      "sha256":  "a0fdfcd9a75b61625cb77fdf884567dd990b9dd043c8cfa6b62abf53903cf26e"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/BoundarySafetyTests.cs",
@@ -466,6 +466,10 @@
                   {
                       "path":  "tests/CodexUsageWidget.Tests/WidgetUpdateTests.cs",
                       "sha256":  "113866f19f7036399f1915e75005f561a5d8ec8112c3d93e904c19f161ec2858"
+                  },
+                  {
+                      "path":  "tests/CodexUsageWidget.Tests/WindowLifecycleTests.cs",
+                      "sha256":  "a2ab83d09ef16e5dc07806c3e57ed4b2f4c098ed8b99ace6ec7e4347ce6eb5fe"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/WpfPresentationCollection.cs",
