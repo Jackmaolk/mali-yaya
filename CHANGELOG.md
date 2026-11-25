@@ -1,5 +1,13 @@
 # 更新日志 / Changelog
 
+## 2026.11.25.1 代理切换修复 / Proxy Handoff Preview
+
+- 额度刷新会检查当前 Windows 系统代理和持久代理环境变量。当配置变化时，重新启动小组件自己的额度连接，并在当前刷新继续请求。当前用户变量优先于计算机级同名变量，保留独立的启动器设置。
+- 保留普通监测的 15 秒目标间隔。请求超时或正在重试时，实际成功刷新时间可能延后。
+- 回归测试覆盖系统代理端口变化、持久代理变量变化，以及清除变量后不再复用旧启动值。
+
+English: The quota reader detects changes to Windows proxy configuration or persistent proxy environment variables and reconnects its own CLI child during the next refresh. The normal polling target remains 15 seconds. Slow or failed requests can delay successful updates.
+
 ## 2026.10.31.1 启动/退出热修复 / Lifecycle Hotfix Preview
 
 - 根据经脱敏核对的 Windows .NET Runtime 事件，定位到旧 .NET 9 在关闭事件内再次 Close 引发 InvalidOperationException；同一缺陷在 .NET 10 源码中仍存在，已用回归测试复现。日志证明的是窗口关闭重入，不把它误称为所有启动失败的唯一原因。

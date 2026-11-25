@@ -97,7 +97,7 @@ This separate user-provided capture shows a real running widget. Its values, sub
 
 The widget needs working access to Codex and the public activity/translation services. If your network cannot reach them directly, first connect your own proxy tool to a working node and configure it as appropriate. Directly reachable networks need no additional proxy. This software supplies no proxy subscription or nodes.
 
-External HTTP requests use the default Windows/.NET proxy behavior; the Codex child also inherits proxy environment variables. A stale HTTP_PROXY, HTTPS_PROXY or ALL_PROXY can conflict with a changed proxy-tool port. There is no universal required port: 7897 is only one possible local setup. Restart this widget normally after changing its launch environment; do not force-quit Codex or reboot Windows for it.
+External HTTP requests use the default Windows/.NET proxy behavior. Starting in 2026.11.25.1, the quota reader checks Windows system proxy and persistent proxy environment settings during refresh, then restarts its own CLI child when settings change. Persistent variables take precedence; update or clear them if they point to an old port. Launcher-only settings are retained when no persistent value is configured. There is no universal required proxy port.
 
 Automatic proxy-port scanning, airport/node switching, Clash/LLG control and system-network repair are not built into this widget. Any separately configured personal network guardian is outside this repository and its packages. A listening port, a working browser or a cached quota percentage does not prove a healthy Codex streaming connection. Account quota, activity, translation and GitHub can fail independently. Never disable TLS verification or security software as a workaround.
 

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Microsoft.Win32;
 
 [assembly: InternalsVisibleTo("CodexUsageWidget.Tests")]
 
@@ -15,7 +16,8 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
     private readonly object _operationGate = new();
     private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly Func<CodexExecutableResolver> _resolverFactory;
-    private readonly Func<string, ICodexConnection> _connect;
+    private readonly Func<string, QuotaProxySettings, ICodexConnection> _connect;
+    private readonly Func<QuotaProxySettings> _readProxy;
     private readonly TimeSpan _requestTimeout;
     private readonly TimeSpan _retryDelay;
     private readonly TimeProvider _timeProvider = TimeProvider.System;
@@ -33,27 +35,32 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
     {
         _executableOverride = executableOverride;
         _resolverFactory = () => new CodexExecutableResolver();
-        _connect = executable => new CodexProcessConnection(StartProcess(executable));
+        _connect = (executable, proxy) => new CodexProcessConnection(StartProcess(executable, proxy));
+        _readProxy = QuotaProxySettings.CreateReader(
+            (name, scope) => Environment.GetEnvironmentVariable(name, scope),
+            QuotaProxySettings.ReadWindowsProxy);
         _requestTimeout = TimeSpan.FromSeconds(12);
         _retryDelay = TimeSpan.FromMilliseconds(1500);
     }
 
     internal CodexRateLimitClient(string? executableOverride, CodexExecutableResolver resolver,
         Func<string, ICodexConnection> connect, TimeSpan? requestTimeout = null, TimeSpan? retryDelay = null,
-        TimeProvider? timeProvider = null)
-        : this(executableOverride)
+        TimeProvider? timeProvider = null, Func<QuotaProxySettings>? readProxy = null)
     {
+        _executableOverride = executableOverride;
         _resolverFactory = () => resolver;
-        _connect = connect;
-        _requestTimeout = requestTimeout ?? _requestTimeout;
-        _retryDelay = retryDelay ?? _retryDelay;
+        _connect = (executable, _) => connect(executable);
+        _readProxy = readProxy ?? (() => new(default, default));
+        _requestTimeout = requestTimeout ?? TimeSpan.FromSeconds(12);
+        _retryDelay = retryDelay ?? TimeSpan.FromMilliseconds(1500);
         _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
-    private sealed class Connection(ICodexConnection transport, CancellationToken token)
+    private sealed class Connection(ICodexConnection transport, QuotaProxySettings proxy, CancellationToken token)
     {
         public Guid SessionId { get; } = Guid.NewGuid();
         public ICodexConnection Transport { get; } = transport;
+        public QuotaProxySettings Proxy { get; } = proxy;
         public CancellationTokenSource Cancellation { get; } = CancellationTokenSource.CreateLinkedTokenSource(token);
         public ConcurrentDictionary<long, TaskCompletionSource<JsonElement>> Pending { get; } = new();
         public Task ReadTask { get; set; } = Task.CompletedTask;
@@ -75,14 +82,15 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
     public async Task StartAsync()
     {
         ObjectDisposedException.ThrowIf(_disposed != 0, this);
-        if (IsConnected) return;
+        if (IsConnected(_readProxy())) return;
         long generation;
         lock (_operationGate) generation = _operationGeneration;
         await _startLock.WaitAsync();
         try
         {
             ObjectDisposedException.ThrowIf(_disposed != 0, this);
-            if (IsConnected) return;
+            var proxy = _readProxy();
+            if (IsConnected(proxy)) return;
             await StopAsync();
             CancellationToken token;
             lock (_operationGate)
@@ -104,7 +112,7 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
                 Installation = installation;
                 InstallationDetected?.Invoke(installation);
                 ConnectionStatusChanged?.Invoke($"已识别 {installation.Source}，正在连接…");
-                var connection = new Connection(_connect(installation.ExecutablePath), token);
+                var connection = new Connection(_connect(installation.ExecutablePath, proxy), proxy, token);
                 _connection = connection;
                 connection.ErrorTask = DrainErrorsAsync(connection);
                 connection.ReadTask = ReadLoopAsync(connection);
@@ -223,19 +231,17 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
         }
     }
 
-    private bool IsConnected
+    private bool IsConnected(QuotaProxySettings proxy)
     {
-        get
-        {
-            var connection = _connection;
-            if (!_initialized || connection is null || connection.Broken || _cts is not { IsCancellationRequested: false })
-                return false;
-            try { return !connection.Transport.HasExited && !connection.ReadTask.IsCompleted; }
-            catch (InvalidOperationException) { return false; }
-        }
+        var connection = _connection;
+        if (!_initialized || connection is null || connection.Broken || connection.Proxy != proxy ||
+            _cts is not { IsCancellationRequested: false })
+            return false;
+        try { return !connection.Transport.HasExited && !connection.ReadTask.IsCompleted; }
+        catch (InvalidOperationException) { return false; }
     }
 
-    private static Process StartProcess(string executable)
+    private static Process StartProcess(string executable, QuotaProxySettings proxy)
     {
         var info = new ProcessStartInfo(executable)
         {
@@ -249,6 +255,7 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
         info.ArgumentList.Add("app-server");
         info.ArgumentList.Add("--listen");
         info.ArgumentList.Add("stdio://");
+        proxy.Apply(info);
         return Process.Start(info) ?? throw new InvalidOperationException("无法启动 Codex app-server。 ");
     }
 
@@ -581,6 +588,65 @@ public sealed class CodexRateLimitClient : IAsyncDisposable
             line.Contains("--listen", StringComparison.OrdinalIgnoreCase)) ||
         (line.Contains("unrecognized subcommand", StringComparison.OrdinalIgnoreCase) &&
             line.Contains("app-server", StringComparison.OrdinalIgnoreCase));
+}
+
+internal sealed record QuotaProxySettings(QuotaProxySettings.ProxyVariables Environment, QuotaProxySettings.WindowsProxy Windows)
+{
+    internal readonly record struct ProxyVariables(string? Http, string? Https, string? All, string? NoProxy)
+    {
+        internal static ProxyVariables Read(Func<string, string?> get) =>
+            new(get("HTTP_PROXY"), get("HTTPS_PROXY"), get("ALL_PROXY"), get("NO_PROXY"));
+
+        internal string? Get(string name) => name switch
+        {
+            "HTTP_PROXY" => Http,
+            "HTTPS_PROXY" => Https,
+            "ALL_PROXY" => All,
+            "NO_PROXY" => NoProxy,
+            _ => null
+        };
+    }
+
+    internal readonly record struct WindowsProxy(bool Enabled, string? Server, string? Bypass, string? AutoConfig);
+
+    private static readonly string[] VariableNames = ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY"];
+
+    internal static Func<QuotaProxySettings> CreateReader(
+        Func<string, EnvironmentVariableTarget, string?> get, Func<WindowsProxy> readWindows)
+    {
+        string? Persistent(string name) => NonEmpty(get(name, EnvironmentVariableTarget.User)) ??
+            NonEmpty(get(name, EnvironmentVariableTarget.Machine));
+        var processOnly = ProxyVariables.Read(name => Persistent(name) is null
+            ? NonEmpty(get(name, EnvironmentVariableTarget.Process)) : null);
+        return () => new(ProxyVariables.Read(name => Persistent(name) ?? processOnly.Get(name)), readWindows());
+    }
+
+    internal static WindowsProxy ReadWindowsProxy()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Internet Settings");
+            var enabled = key?.GetValue("ProxyEnable") is 1;
+            return new(enabled, enabled ? key?.GetValue("ProxyServer") as string : null,
+                enabled ? key?.GetValue("ProxyOverride") as string : null, key?.GetValue("AutoConfigURL") as string);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            return default;
+        }
+    }
+
+    internal void Apply(ProcessStartInfo info)
+    {
+        foreach (var name in VariableNames)
+        {
+            var value = Environment.Get(name);
+            if (value is null) info.Environment.Remove(name);
+            else info.Environment[name] = value;
+        }
+    }
+
+    private static string? NonEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 }
 
 internal interface ICodexConnection : IDisposable
