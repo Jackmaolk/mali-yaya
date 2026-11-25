@@ -10,13 +10,13 @@ An independent Windows desktop companion with an original leaf robot, a stacked 
 
 **Startup/exit hotfix:** avoid recursive WPF Close calls when cleanup completes inline, and ignore late Loaded callbacks after shutdown begins. Six new isolated lifecycle cases include actual native-window show/close without starting CLI or HTTP services. Old shortcuts can still launch an old build; extract this complete package and check the target.
 
-**2026.10.31.1 / .NET 10 is a Windows x64 preview, not a stable release.** It fixes first-reading reset false positives, unsafe optional-storage startup failures and canceled update handoffs. It adds .NET 10/LocalAppData migration, independent Tibo networking and minimal-mode preferences, push/PR CI and a 15-image bilingual gallery.
+**2026.11.25.1 is a .NET 10 preview for Windows x64.** The widget reconnects its quota reader after Windows system proxy or persistent proxy settings change. Independent Tibo networking, minimal mode, and the 15-image bilingual gallery are available.
 
 737 automated tests and hosted dependency-audit steps passed; coverage and real-machine acceptance remain outstanding. See the **[complete bilingual changelog](CHANGELOG.md)** for fixes, limitations and verification results.
 
 **Right-click the widget's title bar or panel background for CLI connection, update repository, Tibo monitoring and minimal-mode settings.** Tibo monitoring is on for first-time use; automatic updating is still off by default. These are independent switches.
 
-A compact Windows WPF companion focused on Tibo reset announcements, Beijing-time reset windows, account-confirmed recovery reminders, and quota countdowns. Version 2026.10.31.1 is an unofficial .NET 10 preview, not an OpenAI product or a signed production installer. Repository: [Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya). Publicly visible source does not imply a license to redistribute or commercialize it; see [rights](RIGHTS.md).
+A compact Windows WPF companion focused on Tibo reset announcements, Beijing-time reset windows, account-confirmed recovery reminders, and quota countdowns. Version 2026.11.25.1 is an unofficial, unsigned .NET 10 preview. Repository: [Jackmaolk/mali-yaya](https://github.com/Jackmaolk/mali-yaya). Publicly visible source does not imply a license to redistribute or commercialize it; see [rights](RIGHTS.md).
 
 ## See It In Action: 7 States, Both Languages
 
@@ -107,7 +107,7 @@ Automatic proxy-port scanning, airport/node switching, Clash/LLG control and sys
 2. Install and sign in to your own Codex CLI, or use an accessible CLI bundled with Codex Desktop/your IDE. A browser login alone does not guarantee that this CLI is signed in. API-key authentication is not the same as a ChatGPT subscription.
 3. Extract the complete verified release folder and run CodexUsageWidget.exe. No terminal window is required, but the widget naturally has a background process.
 
-[Download the 2026.10.31.1 preview](https://github.com/Jackmaolk/mali-yaya/releases/tag/v2026.10.31.1) (Windows x64 / .NET 10; the link may not be live while publication is being prepared). This is not a signed stable installer; read the remaining acceptance items in its release notes. Creating a repository or pushing source does not create an installer or enable automatic updates. Do not install another project's release as an update for this widget. Runtime data/cache now use current-user LocalAppData, with separate per-install health and private state. Binary replacement still requires a writable install directory. Old .NET 9 updaters cannot accept .NET 10 updates: install Desktop Runtime 10 and manually extract the new package first.
+[Download the 2026.11.25.1 preview](https://github.com/Jackmaolk/mali-yaya/releases/tag/v2026.11.25.1) (Windows x64 / .NET 10). Check the release notes for pending acceptance items, download the complete ZIP, and verify SHA256SUMS.txt before extraction. The stable updater skips prereleases. Runtime data and caches use current-user LocalAppData, with separate per-install health and private state. Install .NET 10 Desktop Runtime x64 and extract the new package before migrating from a .NET 9 build.
 
 ## Language and Appearance
 

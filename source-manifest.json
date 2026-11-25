@@ -1,7 +1,7 @@
 {
     "schemaVersion":  1,
     "purpose":  "Reviewed source preview; not a production binary release",
-    "generatedAtUtc":  "2026-11-25T13:54:09.8815758+00:00",
+    "generatedAtUtc":  "2026-11-25T14:01:21.331Z",
     "files":  [
                   {
                       "path":  ".gitignore",
@@ -161,7 +161,7 @@
                   },
                   {
                       "path":  "README.github.md",
-                      "sha256":  "665ec688caa8d69b87e0948596905ce598eaedceb290d1f6887ef80b79f1631e"
+                      "sha256":  "063d08701342d15e65a1abb563e1c6236e63a457dc12c3178ed26c2d25618899"
                   },
                   {
                       "path":  "Assets/mali-yaya.png",
@@ -249,7 +249,7 @@
                   },
                   {
                       "path":  "README.en.md",
-                      "sha256":  "6c77f0181282dbb542a8102e7ccf798f0123dee2c78874c35f51892a3354ebb7"
+                      "sha256":  "652fd8538e1cb1ef12ab839b173268cbb546dcb8015d6e0c12c775a43d24f0be"
                   },
                   {
                       "path":  "CHANGELOG.md",
@@ -357,7 +357,7 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "665ec688caa8d69b87e0948596905ce598eaedceb290d1f6887ef80b79f1631e"
+                      "sha256":  "063d08701342d15e65a1abb563e1c6236e63a457dc12c3178ed26c2d25618899"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/BoundarySafetyTests.cs",
