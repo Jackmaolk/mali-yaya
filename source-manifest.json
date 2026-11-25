@@ -1,7 +1,7 @@
 {
     "schemaVersion":  1,
     "purpose":  "Reviewed source preview; not a production binary release",
-    "generatedAtUtc":  "2026-10-31T01:26:02.9786326+00:00",
+    "generatedAtUtc":  "2026-11-25T14:01:21.331Z",
     "files":  [
                   {
                       "path":  ".gitignore",
@@ -33,7 +33,7 @@
                   },
                   {
                       "path":  "CodexRateLimitClient.cs",
-                      "sha256":  "b67ab467fbdf86691e1575bd8b0330584f791437e487430b6687cbd12f68ab5e"
+                      "sha256":  "dc7e4b80c8e53bbd680c2db59910491617d7df2d0e0a8f40a94a07b8dfdfa1cc"
                   },
                   {
                       "path":  "CodexExecutableResolver.cs",
@@ -45,7 +45,7 @@
                   },
                   {
                       "path":  "CodexUsageWidget.csproj",
-                      "sha256":  "ad2896780fec435f09fa8e8139d695fe49bb5b23c6ec3090173f256c3a76bc69"
+                      "sha256":  "38b418fbe65b1b630ca489a78f66ea139425779f47dc52b7093516cb8a9dbd84"
                   },
                   {
                       "path":  "Directory.Build.props",
@@ -133,7 +133,7 @@
                   },
                   {
                       "path":  "WidgetRuntimeStatus.cs",
-                      "sha256":  "92b39893e86b5e40a9b3e9cc6540e255bd713d10380456ffb60e79821625d7e0"
+                      "sha256":  "c22beb00be1cc694447b48119d16206a46098c0234c1da67a89fd57bdaf44f09"
                   },
                   {
                       "path":  "WidgetDataPaths.cs",
@@ -161,7 +161,7 @@
                   },
                   {
                       "path":  "README.github.md",
-                      "sha256":  "a0fdfcd9a75b61625cb77fdf884567dd990b9dd043c8cfa6b62abf53903cf26e"
+                      "sha256":  "063d08701342d15e65a1abb563e1c6236e63a457dc12c3178ed26c2d25618899"
                   },
                   {
                       "path":  "Assets/mali-yaya.png",
@@ -249,11 +249,11 @@
                   },
                   {
                       "path":  "README.en.md",
-                      "sha256":  "86432121230e5e36242419be8985bf12414a54e6f86d20b849aa36685c8cd8d0"
+                      "sha256":  "652fd8538e1cb1ef12ab839b173268cbb546dcb8015d6e0c12c775a43d24f0be"
                   },
                   {
                       "path":  "CHANGELOG.md",
-                      "sha256":  "9a94df80563ba50fe49e9aa2c49ed0e582edaeb720881a1d404847727d778fb5"
+                      "sha256":  "45afebc815ebbff85cb99a0c0ace78c8dcc45fb60da56d16d63511c58d129b82"
                   },
                   {
                       "path":  "launcher/WidgetLauncher.cs",
@@ -357,7 +357,7 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "a0fdfcd9a75b61625cb77fdf884567dd990b9dd043c8cfa6b62abf53903cf26e"
+                      "sha256":  "063d08701342d15e65a1abb563e1c6236e63a457dc12c3178ed26c2d25618899"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/BoundarySafetyTests.cs",
@@ -369,7 +369,7 @@
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/CodexClientRecoveryTests.cs",
-                      "sha256":  "fead0f2d4d50fbbffac46f1e3dae2c798d34aeafe435695cfa4ebe86734922e7"
+                      "sha256":  "e9aaccb5555edf11f543a3e3ca6ff34d5303ec2728c3019d470a4ec50202e92b"
                   },
                   {
                       "path":  "tests/CodexUsageWidget.Tests/CodexDiscoveryTests.cs",

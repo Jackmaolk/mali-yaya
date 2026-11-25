@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -9,6 +10,63 @@ namespace CodexUsageWidget.Tests;
 public sealed class CodexClientRecoveryTests
 {
     private static readonly TimeSpan Guard = TimeSpan.FromSeconds(5);
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RefreshReplacesOnlyTheOwnedChildWhenProxyChanges(bool changeWindowsProxy)
+    {
+        var initial = new QuotaProxySettings(new(null, "http://127.0.0.1:45111", null, null),
+            new(true, "127.0.0.1:45111", null, null));
+        var proxy = initial;
+        var first = new FakeConnection();
+        var second = new FakeConnection();
+        var starts = 0;
+        var snapshots = 0;
+        await using var client = new CodexRateLimitClient(null, Resolver(),
+            _ => ++starts == 1 ? first : second, readProxy: () => proxy);
+        client.SnapshotUpdated += _ => snapshots++;
+
+        await client.RefreshAsync().WaitAsync(Guard);
+        await client.RefreshAsync().WaitAsync(Guard);
+        Assert.Equal(1, starts);
+        Assert.False(first.Killed);
+
+        proxy = changeWindowsProxy
+            ? initial with { Windows = initial.Windows with { Server = "127.0.0.1:53217" } }
+            : initial with { Environment = initial.Environment with { Https = "http://127.0.0.1:53217" } };
+        await client.RefreshAsync().WaitAsync(Guard);
+
+        Assert.Equal(2, starts);
+        Assert.Equal(3, snapshots);
+        Assert.True(first.Killed);
+        Assert.True(first.Disposed);
+        Assert.False(second.Killed);
+        Assert.Contains("account/rateLimits/read", second.Methods);
+    }
+
+    [Fact]
+    public void LatestPersistentProxyIsAppliedAndADeletedValueDoesNotBecomeStale()
+    {
+        var settings = new Dictionary<(string, EnvironmentVariableTarget), string>
+        {
+            [("HTTPS_PROXY", EnvironmentVariableTarget.Process)] = "http://127.0.0.1:45111",
+            [("HTTPS_PROXY", EnvironmentVariableTarget.User)] = "http://127.0.0.1:53217",
+            [("NO_PROXY", EnvironmentVariableTarget.Process)] = "localhost,127.0.0.1",
+            [("ALL_PROXY", EnvironmentVariableTarget.Machine)] = "http://127.0.0.1:53218"
+        };
+        var capture = QuotaProxySettings.CreateReader((name, scope) => settings.GetValueOrDefault((name, scope)), () => default);
+        var start = new ProcessStartInfo("fixture.exe");
+        start.Environment["HTTPS_PROXY"] = "http://127.0.0.1:45111";
+        capture().Apply(start);
+        Assert.Equal("http://127.0.0.1:53217", start.Environment["HTTPS_PROXY"]);
+        Assert.Equal("http://127.0.0.1:53218", start.Environment["ALL_PROXY"]);
+        Assert.Equal("localhost,127.0.0.1", start.Environment["NO_PROXY"]);
+
+        settings.Remove(("HTTPS_PROXY", EnvironmentVariableTarget.User));
+        capture().Apply(start);
+        Assert.False(start.Environment.ContainsKey("HTTPS_PROXY"));
+    }
 
     [Theory]
     [InlineData(false)]
